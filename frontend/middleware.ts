@@ -1,6 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 
-const locales = ["en", "ar"] as const;
+const locales = ["ar", "en"] as const;
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -14,9 +14,9 @@ export function middleware(request: NextRequest) {
 
   if (!firstSegment || !locales.includes(firstSegment as (typeof locales)[number])) {
     const url = request.nextUrl.clone();
-    url.pathname = `/en${pathname === "/" ? "" : pathname}`;
+    url.pathname = `/ar${pathname === "/" ? "" : pathname}`;
     const response = NextResponse.redirect(url);
-    response.cookies.set("melbet-locale", "en");
+    response.cookies.set("melbet-locale", "ar");
     return response;
   }
 
