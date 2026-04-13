@@ -1,8 +1,8 @@
 services:
-  - name: melbet-live-backend
-    type: web
+  - name: melbet-live-backend-private
+    type: pserv
     runtime: docker
-    plan: free
+    plan: starter
     dockerfilePath: ./backend/Dockerfile
     dockerContext: .
     healthCheckPath: /api/v1/health
@@ -32,8 +32,8 @@ services:
     envVars:
       - key: INTERNAL_API_BASE_URL
         fromService:
-          type: web
-          name: melbet-live-backend
+          type: pserv
+          name: melbet-live-backend-private
           property: hostport
 
 databases:
