@@ -78,28 +78,38 @@ npm run dev
 
 ## Deploy To Render
 
-This repo now includes a root `render.yaml` Blueprint that provisions:
+This repo includes a root `render.yaml` for a free-friendly Render setup with:
 
 - `melbet-live-db` as a Render Postgres database
-- `melbet-live-backend` as a Docker web service
-- `melbet-live-frontend` as a Docker web service
+- `melbet-live-api` as a Docker web service
+- `melbet-live-com` as a Docker web service
 
 ### Render deployment flow
 
 1. Push this repository to GitHub, GitLab, or Bitbucket.
-2. In Render, choose `New` -> `Blueprint`.
-3. Connect the repository and select this repo's root `render.yaml`.
-4. During the initial Blueprint setup, provide values for:
-   - `FOOTBALL_DATA_API_KEY`
-   - `GNEWS_API_KEY`
-5. Create the Blueprint and wait for all three resources to finish provisioning.
+2. On a free account, create three Render resources manually:
+   - a Postgres database
+   - a backend web service from `./backend/Dockerfile`
+   - a frontend web service from `./frontend/Dockerfile`
+3. Set the backend service environment variables:
+   - `APP_ENV=production`
+   - `APP_DEBUG=false`
+   - `DATABASE_URL=<Render internal database URL>`
+   - `SECRET_KEY=<long random secret>`
+   - `FOOTBALL_DATA_API_KEY=<your key>`
+   - `GNEWS_API_KEY=<your key>`
+4. Set the frontend service environment variables:
+   - `INTERNAL_API_BASE_URL=https://<your-backend-service>.onrender.com`
+   - `NEXT_PUBLIC_API_BASE_URL=https://<your-backend-service>.onrender.com` (optional)
+   - `NEXT_PUBLIC_APP_URL=https://<your-frontend-service>.onrender.com`
+5. Deploy the backend first, then deploy the frontend.
 6. Open the frontend service URL once deploys complete.
 
 ### Render notes
 
 - The backend runs `alembic upgrade head` on startup before launching Uvicorn.
-- The frontend talks to the backend over Render's private network using `INTERNAL_API_BASE_URL`.
-- Browser API calls are proxied through the frontend service, so `NEXT_PUBLIC_API_BASE_URL` is not required on Render.
+- On the free plan, both backend and frontend are public web services.
+- The frontend can proxy browser API calls through its own service when `INTERNAL_API_BASE_URL` is set.
 - If you want to call the backend directly from another origin later, set `CORS_ALLOW_ORIGINS` on the backend service to a comma-separated list of allowed frontend URLs.
 
 ## Frontend Route Assumptions
