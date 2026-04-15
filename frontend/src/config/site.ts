@@ -2,7 +2,7 @@ import type { Locale } from "@/i18n";
 
 export const siteConfig = {
   name: "Melbet Live",
-  description: "Bilingual sports matches and news platform",
+  description: "Multilingual football matches and news platform",
   adminStorageKey: "melbet-admin-token",
   redirectStorageKey: "melbet-last-redirect",
   defaultSocialLinks: [
@@ -15,5 +15,8 @@ export const siteConfig = {
 };
 
 export function getLocaleLabel(locale: Locale) {
-  return locale === "ar" ? "???????" : "English";
+  if (locale === "ar") return "العربية";
+  if (locale === "fr") return "Français";
+  if (locale === "es") return "Español";
+  return "English";
 }

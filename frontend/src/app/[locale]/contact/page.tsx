@@ -29,7 +29,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           </h1>
           <span className="mt-3 block h-[3px] w-16 bg-[#f1bc26]" />
           <p className="mt-4 max-w-[42rem] text-sm leading-7 text-[#a9a39a] sm:text-base">
-            تواصل معنا عبر الروابط التالية. يمكنك فتح أي وسيلة مباشرة في تبويب جديد للوصول السريع إلى الدعم أو قنواتنا الرسمية.
+            {messages.contactIntro}
           </p>
         </div>
 
@@ -41,9 +41,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
 
         <div className="mt-8 rounded-[1.35rem] border border-[rgba(255,194,0,0.12)] bg-[#101010] px-5 py-5 text-sm leading-7 text-[#beb8ad]">
           <p className="font-bold text-white">{siteConfig.name}</p>
-          <p className="mt-2">
-            {siteConfig.description}
-          </p>
+          <p className="mt-2">{siteConfig.description}</p>
         </div>
       </section>
     </div>

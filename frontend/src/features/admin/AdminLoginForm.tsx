@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -33,7 +34,10 @@ export function AdminLoginForm({ locale, messages }: { locale: Locale; messages:
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md items-center px-4 py-12">
+    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-12">
+      <div className="mb-6 flex justify-center">
+        <LanguageSwitcher locale={locale} />
+      </div>
       <Card className="w-full space-y-6">
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#f4bb41]">{messages.admin}</p>

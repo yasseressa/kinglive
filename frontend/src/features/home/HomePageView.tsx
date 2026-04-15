@@ -24,9 +24,9 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <SectionEyebrow title="Upcoming Matches" accent={messages.matches} />
+            <SectionEyebrow title={messages.upcoming} accent={messages.matches} />
             <p className="mt-3 max-w-[38rem] text-sm leading-7 text-[#a9a39a] sm:text-base">
-              اختر اليوم المناسب ثم اضغط على المباراة نفسها لفتح صفحة المباراة مباشرة في تبويب جديد.
+              {messages.matchesIntro}
             </p>
           </div>
 
@@ -67,9 +67,9 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
         className="rounded-[1.85rem] border border-[rgba(255,194,0,0.14)] bg-[linear-gradient(180deg,#0a0a0a_0%,#070707_100%)] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.34)] sm:p-6 lg:p-8"
       >
         <div>
-          <SectionEyebrow title="Latest" accent={messages.sportsNews} />
+          <SectionEyebrow title={messages.latest} accent={messages.sportsNews} />
           <p className="mt-3 max-w-[38rem] text-sm leading-7 text-[#a9a39a] sm:text-base">
-            آخر الأخبار الرياضية المعروضة بشكل بسيط وواضح مع روابط مباشرة لصفحات الأخبار.
+            {messages.newsIntro}
           </p>
         </div>
 

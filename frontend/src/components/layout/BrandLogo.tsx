@@ -1,8 +1,10 @@
+import Link from "next/link";
+
 import type { Locale } from "@/i18n";
 
 export function BrandLogo({ locale, compact = false }: { locale: Locale; compact?: boolean }) {
   return (
-    <a href={`/${locale}`} className="inline-flex items-center gap-3" data-disable-global-redirect>
+    <Link href={`/${locale}`} className="inline-flex items-center gap-3" data-disable-global-redirect>
       <span className={`flex items-center justify-center rounded-[1rem] border border-[rgba(255,194,0,0.24)] bg-[linear-gradient(180deg,#171717_0%,#0c0c0c_100%)] text-[#f1bc26] shadow-[0_10px_24px_rgba(0,0,0,0.3)] ${compact ? "h-11 w-11" : "h-14 w-14 sm:h-16 sm:w-16"}`}>
         <ShieldBallIcon compact={compact} />
       </span>
@@ -10,7 +12,7 @@ export function BrandLogo({ locale, compact = false }: { locale: Locale; compact
         <span className={`tracking-[0.08em] text-white ${compact ? "text-base" : "text-lg sm:text-xl"}`}>Melbet</span>
         <span className={`tracking-[0.08em] text-[#f1bc26] ${compact ? "text-base" : "text-lg sm:text-xl"}`}>Live</span>
       </span>
-    </a>
+    </Link>
   );
 }
 

@@ -85,5 +85,11 @@
   "youtubeUrl": "YouTube URL",
   "instagramUrl": "Instagram URL",
   "telegramUrl": "Telegram URL",
-  "whatsappUrl": "WhatsApp URL"
+  "whatsappUrl": "WhatsApp URL",
+  "upcoming": "Upcoming",
+  "latest": "Latest",
+  "footerTagline": "A broadcast-inspired football experience built for fast match access, strong contrast, and smooth reading on every screen.",
+  "matchesIntro": "Choose the day that suits you, then open the match page directly in a new tab with one click.",
+  "newsIntro": "The latest sports stories are presented in a clear layout with direct links to each article.",
+  "contactIntro": "Reach us through the links below. Every contact method opens in a new tab for faster access."
 }

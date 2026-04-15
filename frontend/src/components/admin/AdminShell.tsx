@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { siteConfig } from "@/config/site";
 import type { Locale, Messages } from "@/i18n";
@@ -49,6 +50,9 @@ export function AdminShell({ children, locale, messages }: { children: React.Rea
       <div className="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[260px_1fr] lg:px-8">
         <aside className="rounded-[1.75rem] border border-[#4b3818] bg-[linear-gradient(180deg,_#17120d,_#0d0d0d)] p-5 text-[#f5efe3] shadow-card">
           <p className="text-xs uppercase tracking-[0.3em] text-[#f4bb41]">{siteConfig.name}</p>
+          <div className="mt-4">
+            <LanguageSwitcher locale={locale} />
+          </div>
           <nav className="mt-8 space-y-2">
             {links.map((link) => (
               <Link key={link.href} href={link.href} className="block rounded-2xl px-4 py-3 text-sm font-semibold transition hover:bg-[#21180f] hover:text-[#f4bb41]">

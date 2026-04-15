@@ -11,10 +11,10 @@ ARABIC_TRANSLATIONS = {
     "Primera Division": "الدوري الإسباني",
     "Bundesliga": "الدوري الألماني",
     "Ligue 1": "الدوري الفرنسي",
-    "Unknown home team": "الفريق صاحب الأرض غير معروف",
-    "Unknown away team": "الفريق الضيف غير معروف",
     "Football": "كرة القدم",
     "National Stadium": "الملعب الوطني",
+    "Unknown home team": "الفريق صاحب الأرض غير معروف",
+    "Unknown away team": "الفريق الضيف غير معروف",
     "Arsenal": "أرسنال",
     "Chelsea": "تشيلسي",
     "Liverpool": "ليفربول",
@@ -52,7 +52,7 @@ ARABIC_TRANSLATIONS = {
     "Monaco": "موناكو",
 }
 
-_LATIN_WORD_PATTERN = re.compile(r"[A-Za-z]+(?:[-'][A-Za-z]+)*")
+_LATIN_WORD_PATTERN = re.compile(r"[A-Za-zÀ-ÿ]+(?:[-'][A-Za-zÀ-ÿ]+)*")
 _DIGRAPH_MAP = (
     ("sch", "ش"),
     ("sh", "ش"),
@@ -99,6 +99,21 @@ _CHAR_MAP = {
     "x": "كس",
     "y": "ي",
     "z": "ز",
+    "à": "ا",
+    "á": "ا",
+    "â": "ا",
+    "ä": "ا",
+    "ç": "س",
+    "é": "ي",
+    "è": "ي",
+    "ê": "ي",
+    "ë": "ي",
+    "í": "ي",
+    "ï": "ي",
+    "ó": "و",
+    "ö": "و",
+    "ú": "و",
+    "ü": "و",
 }
 
 
