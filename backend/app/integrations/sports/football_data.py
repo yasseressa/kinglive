@@ -26,10 +26,7 @@ _STATUS_MAP = {
 
 class FootballDataSportsAPIClient(SportsAPIClient):
     def __init__(self) -> None:
-        if not settings.football_data_base_url:
-            raise ValueError("FOOTBALL_DATA_BASE_URL is required when SPORTS_PROVIDER=football_data")
-        if not settings.football_data_api_key:
-            raise ValueError("FOOTBALL_DATA_API_KEY is required when SPORTS_PROVIDER=football_data")
+        self.enabled = bool(settings.football_data_base_url and settings.football_data_api_key)
         self.base_url = settings.football_data_base_url.strip().strip('"').rstrip("/")
         self.headers = {
             "X-Auth-Token": settings.football_data_api_key.strip().strip('"'),
@@ -37,6 +34,9 @@ class FootballDataSportsAPIClient(SportsAPIClient):
         }
 
     async def get_matches_for_date(self, target_date: date, locale: str) -> list[MatchData]:
+        if not self.enabled:
+            logger.error("sports_api_client_not_configured", extra={"provider": "football_data"})
+            return []
         logger.info(
             "sports_api_call",
             extra={"provider": "football_data", "operation": "get_matches_for_date", "date": target_date.isoformat()},
@@ -51,6 +51,9 @@ class FootballDataSportsAPIClient(SportsAPIClient):
         return sorted(unique_matches.values(), key=lambda item: item.start_time)
 
     async def get_match_details(self, external_match_id: str, locale: str) -> MatchData | None:
+        if not self.enabled:
+            logger.error("sports_api_client_not_configured", extra={"provider": "football_data"})
+            return None
         logger.info(
             "sports_api_call",
             extra={"provider": "football_data", "operation": "get_match_details", "external_match_id": external_match_id},

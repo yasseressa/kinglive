@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=(".env", "backend/.env", "backend/.env.example"),
+        env_file=(".env", "backend/.env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -23,9 +23,9 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
     log_json: bool = False
-    sports_provider: str = "mock"
-    news_provider: str = "mock"
-    football_data_base_url: str = ""
+    sports_provider: str = "football_data"
+    news_provider: str = "gnews"
+    football_data_base_url: str = "https://api.football-data.org/v4"
     football_data_api_key: str = ""
     football_data_competitions: str = "PL,CL,SA,PD,BL1,FL1"
     football_data_timezone: str = "Asia/Riyadh"

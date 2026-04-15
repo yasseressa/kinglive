@@ -20,13 +20,15 @@ _slug_pattern = re.compile(r"[^a-z0-9]+")
 
 class GNewsAPIClient(NewsAPIClient):
     def __init__(self) -> None:
-        if not settings.gnews_api_key:
-            raise ValueError("GNEWS_API_KEY is required when NEWS_PROVIDER=gnews")
+        self.enabled = bool(settings.gnews_api_key)
         self.base_url = settings.gnews_base_url.rstrip("/")
         self.api_key = settings.gnews_api_key
         self.max_results = settings.gnews_max_results
 
     async def get_latest_sports_news(self, locale: str) -> list[NewsArticleData]:
+        if not self.enabled:
+            logger.error("news_api_client_not_configured", extra={"provider": "gnews"})
+            return []
         logger.info("news_api_call", extra={"provider": "gnews", "operation": "get_latest_sports_news"})
         articles = await self._fetch_articles(
             "/top-headlines",
@@ -45,6 +47,9 @@ class GNewsAPIClient(NewsAPIClient):
         competition: str | None = None,
         match_context: str | None = None,
     ) -> list[NewsArticleData]:
+        if not self.enabled:
+            logger.error("news_api_client_not_configured", extra={"provider": "gnews"})
+            return []
         logger.info(
             "news_api_call",
             extra={"provider": "gnews", "operation": "get_related_news", "competition": competition},
@@ -66,6 +71,9 @@ class GNewsAPIClient(NewsAPIClient):
         return [self._map_article(article, tags=tags) for article in articles]
 
     async def get_article_details(self, identifier: str, locale: str) -> NewsArticleData | None:
+        if not self.enabled:
+            logger.error("news_api_client_not_configured", extra={"provider": "gnews"})
+            return None
         logger.info("news_api_call", extra={"provider": "gnews", "operation": "get_article_details", "identifier": identifier})
         title, article_url = _decode_slug(identifier)
         candidates = await self._fetch_articles(
