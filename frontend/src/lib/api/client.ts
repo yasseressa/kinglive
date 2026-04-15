@@ -10,6 +10,8 @@ interface RequestOptions extends RequestInit {
   token?: string | null;
 }
 
+const REQUEST_TIMEOUT_MS = 15000;
+
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { token, headers, ...rest } = options;
   const requestUrl = `${getApiBaseUrl()}${path}`;
@@ -19,6 +21,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   let lastError: ApiError | null = null;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     let response: Response;
 
     try {
@@ -30,15 +34,26 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
           ...headers,
         },
         cache: rest.cache ?? "no-store",
+        signal: controller.signal,
       });
-    } catch {
-      lastError = new ApiError("Unable to reach API server", 0);
+    } catch (error) {
+      clearTimeout(timeout);
+
+      if (error instanceof Error && error.name === "AbortError") {
+        lastError = new ApiError("The server took too long to respond. Please try again in a few seconds.", 408);
+      } else {
+        lastError = new ApiError("Unable to reach API server", 0);
+      }
+
       if (attempt < maxAttempts) {
         await delay(attempt * 1000);
         continue;
       }
+
       throw lastError;
     }
+
+    clearTimeout(timeout);
 
     if (response.ok) {
       return response.json() as Promise<T>;

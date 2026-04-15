@@ -27,7 +27,8 @@ export function AdminLoginForm({ locale, messages }: { locale: Locale; messages:
       setAdminToken(result.access_token);
       router.push(`/${locale}/admin/streams`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : messages.loginFailed);
+      const message = err instanceof Error ? err.message : messages.loginFailed;
+      setError(message || messages.loginFailed);
     } finally {
       setLoading(false);
     }
@@ -47,6 +48,7 @@ export function AdminLoginForm({ locale, messages }: { locale: Locale; messages:
           <Input value={login} onChange={(event) => setLogin(event.target.value)} placeholder={messages.usernameOrEmail} required data-disable-global-redirect />
           <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder={messages.password} required type="password" data-disable-global-redirect />
           {error ? <p className="text-sm text-[#f5d7c9]">{error}</p> : null}
+          {loading ? <p className="text-xs text-[#ccb992]">If the server is waking up on Render, login may take a few seconds.</p> : null}
           <Button className="w-full" disabled={loading} type="submit">{loading ? messages.loading : messages.login}</Button>
         </form>
       </Card>
