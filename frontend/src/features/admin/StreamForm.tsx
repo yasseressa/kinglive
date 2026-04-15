@@ -22,12 +22,14 @@ export function StreamForm({
   onSubmit,
   mode,
   matchBuckets,
+  matchBucketsError,
 }: {
   messages: Messages;
   initialValues?: StreamFormValues;
   onSubmit: (values: StreamFormValues) => Promise<void>;
   mode: "create" | "edit";
   matchBuckets?: Array<{ label: string; matches: MatchSummary[] }>;
+  matchBucketsError?: string | null;
 }) {
   const [values, setValues] = useState<StreamFormValues>(
     initialValues ?? {
@@ -94,6 +96,7 @@ export function StreamForm({
         {error ? <p className="text-sm text-[#f5d7c9]">{error}</p> : null}
         <Button type="submit" disabled={loading}>{loading ? messages.loading : mode === "create" ? messages.save : messages.update}</Button>
       </form>
+      {matchBucketsError ? <p className="text-sm text-[#f5d7c9]">{matchBucketsError}</p> : null}
       {matchBuckets?.some((bucket) => bucket.matches.length > 0) ? (
         <div className="space-y-4 border-t border-[#3a2b14] pt-5">
           <div>

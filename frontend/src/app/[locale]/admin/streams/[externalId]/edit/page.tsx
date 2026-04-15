@@ -4,6 +4,8 @@ import { StreamEditor } from "@/features/admin/StreamEditor";
 import { getMessages, isLocale } from "@/i18n";
 import { getHomePageData } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+
 export default async function EditStreamPage({
   params,
 }: {

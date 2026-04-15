@@ -21,6 +21,7 @@ export function StreamsPage({
 }) {
   const [items, setItems] = useState<StreamLink[]>([]);
   const [matchBuckets, setMatchBuckets] = useState<HomeResponse | null>(initialMatchBuckets ?? null);
+  const [matchBucketsError, setMatchBucketsError] = useState<string | null>(initialMatchBuckets ? null : null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,8 +44,14 @@ export function StreamsPage({
     }
 
     getHomePageData(locale)
-      .then((response) => setMatchBuckets(response))
-      .catch(() => setMatchBuckets(null));
+      .then((response) => {
+        setMatchBuckets(response);
+        setMatchBucketsError(null);
+      })
+      .catch((err) => {
+        setMatchBuckets(null);
+        setMatchBucketsError(err instanceof Error ? err.message : messages.loadFailed);
+      });
   }, [initialMatchBuckets, locale]);
 
   return (
@@ -76,6 +83,7 @@ export function StreamsPage({
           </div>
         ) : null}
       </Card>
+      {matchBucketsError ? <Card className="text-sm text-[#f5d7c9]">{matchBucketsError}</Card> : null}
       {matchBuckets ? (
         <Card className="space-y-4">
           <div>

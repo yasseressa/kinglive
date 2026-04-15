@@ -24,6 +24,7 @@ export function StreamEditor({
   const router = useRouter();
   const [initialValues, setInitialValues] = useState<StreamFormValues | undefined>(undefined);
   const [matchBuckets, setMatchBuckets] = useState<HomeResponse | null>(initialMatchBuckets ?? null);
+  const [matchBucketsError, setMatchBucketsError] = useState<string | null>(initialMatchBuckets ? null : null);
   const [loading, setLoading] = useState(Boolean(externalId));
   const [error, setError] = useState<string | null>(null);
 
@@ -53,8 +54,14 @@ export function StreamEditor({
     }
 
     getHomePageData(locale)
-      .then((response) => setMatchBuckets(response))
-      .catch(() => setMatchBuckets(null));
+      .then((response) => {
+        setMatchBuckets(response);
+        setMatchBucketsError(null);
+      })
+      .catch((err) => {
+        setMatchBuckets(null);
+        setMatchBucketsError(err instanceof Error ? err.message : messages.loadFailed);
+      });
   }, [initialMatchBuckets, locale]);
 
   if (loading) {
@@ -70,6 +77,7 @@ export function StreamEditor({
       messages={messages}
       initialValues={initialValues}
       mode={externalId ? "edit" : "create"}
+      matchBucketsError={matchBucketsError}
       matchBuckets={matchBuckets ? [
         { label: messages.todayMatches, matches: matchBuckets.today_matches },
         { label: messages.tomorrowMatches, matches: matchBuckets.tomorrow_matches },
