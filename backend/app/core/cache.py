@@ -16,6 +16,10 @@ class CacheBackend(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_stale(self, key: str) -> Any | None:
+        raise NotImplementedError
+
+    @abstractmethod
     def set(self, key: str, value: Any, ttl_seconds: int) -> None:
         raise NotImplementedError
 
@@ -43,11 +47,20 @@ class InMemoryCacheBackend(CacheBackend):
                 return None
 
             if entry.expires_at <= datetime.now(UTC):
-                self._store.pop(key, None)
                 logger.info("cache_expired", extra={"cache_key": key})
                 return None
 
             logger.info("cache_hit", extra={"cache_key": key})
+            return entry.value
+
+    def get_stale(self, key: str) -> Any | None:
+        with self._lock:
+            entry = self._store.get(key)
+            if entry is None:
+                logger.info("cache_stale_miss", extra={"cache_key": key})
+                return None
+
+            logger.info("cache_stale_hit", extra={"cache_key": key})
             return entry.value
 
     def set(self, key: str, value: Any, ttl_seconds: int) -> None:

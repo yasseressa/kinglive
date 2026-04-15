@@ -75,7 +75,9 @@ class GNewsAPIClient(NewsAPIClient):
             logger.error("news_api_client_not_configured", extra={"provider": "gnews"})
             return None
         logger.info("news_api_call", extra={"provider": "gnews", "operation": "get_article_details", "identifier": identifier})
-        title, article_url = _decode_slug(identifier)
+        slug_payload = _decode_slug_payload(identifier)
+        title = str(slug_payload.get("title") or "")
+        article_url = str(slug_payload.get("url") or "")
         candidates = await self._fetch_articles(
             "/search",
             {
@@ -100,7 +102,7 @@ class GNewsAPIClient(NewsAPIClient):
         for article in fallback:
             if _normalize_url(article.get("url")) == _normalize_url(article_url):
                 return self._map_article(article, tags=["sports"])
-        return None
+        return _build_fallback_article_from_slug(slug_payload)
 
     async def _fetch_articles(self, path: str, params: dict[str, object]) -> list[dict]:
         request_params = {**params, "apikey": self.api_key}
@@ -126,7 +128,14 @@ class GNewsAPIClient(NewsAPIClient):
         source_name = source.get("name") or urlparse(article_url).netloc or "GNews"
         provider_id = hashlib.sha256(article_url.encode("utf-8")).hexdigest()[:16] if article_url else title
         return NewsArticleData(
-            slug=_build_slug(title, article_url),
+            slug=_build_slug(
+                title,
+                article_url,
+                summary=description,
+                source=source_name,
+                published_at=payload.get("publishedAt"),
+                image_url=payload.get("image"),
+            ),
             provider_id=provider_id,
             title=title,
             summary=description,
@@ -166,22 +175,79 @@ def _slugify(value: str) -> str:
     return normalized[:48] or "article"
 
 
-def _build_slug(title: str, article_url: str) -> str:
-    payload = json.dumps({"title": title, "url": article_url}, separators=(",", ":")).encode("utf-8")
+def _build_slug(
+    title: str,
+    article_url: str,
+    *,
+    summary: str | None = None,
+    source: str | None = None,
+    published_at: str | None = None,
+    image_url: str | None = None,
+) -> str:
+    payload = json.dumps(
+        {
+            "title": title,
+            "url": article_url,
+            "summary": summary,
+            "source": source,
+            "published_at": published_at,
+            "image_url": image_url,
+        },
+        separators=(",", ":"),
+    ).encode("utf-8")
     token = base64.urlsafe_b64encode(payload).decode("ascii").rstrip("=")
     return f"{_slugify(title)}--{token}"
 
 
 def _decode_slug(identifier: str) -> tuple[str, str]:
+    payload = _decode_slug_payload(identifier)
+    return str(payload.get("title") or ""), str(payload.get("url") or "")
+
+
+def _decode_slug_payload(identifier: str) -> dict[str, object]:
     if "--" not in identifier:
-        return "", ""
+        return {}
     _, token = identifier.rsplit("--", 1)
     padding = "=" * (-len(token) % 4)
     try:
         payload = json.loads(base64.urlsafe_b64decode(f"{token}{padding}").decode("utf-8"))
     except (ValueError, json.JSONDecodeError):
-        return "", ""
-    return str(payload.get("title") or ""), str(payload.get("url") or "")
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    return payload
+
+
+def _build_fallback_article_from_slug(payload: dict[str, object]) -> NewsArticleData | None:
+    title = str(payload.get("title") or "").strip()
+    article_url = str(payload.get("url") or "").strip()
+    if not title or not article_url:
+        return None
+
+    summary = str(payload.get("summary") or title)
+    source = str(payload.get("source") or urlparse(article_url).netloc or "GNews")
+    published_at = _parse_datetime(str(payload.get("published_at") or ""))
+    image_url = str(payload.get("image_url") or "") or None
+
+    return NewsArticleData(
+        slug=_build_slug(
+            title,
+            article_url,
+            summary=summary,
+            source=source,
+            published_at=published_at.isoformat(),
+            image_url=image_url,
+        ),
+        provider_id=hashlib.sha256(article_url.encode("utf-8")).hexdigest()[:16],
+        title=title,
+        summary=summary,
+        content=summary,
+        source=source,
+        published_at=published_at,
+        article_url=article_url,
+        image_url=image_url,
+        tags=["sports"],
+    )
 
 
 def _normalize_url(value: str | None) -> str:

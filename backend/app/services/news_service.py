@@ -22,12 +22,17 @@ class NewsService:
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
+        stale_cached = self.cache.get_stale(cache_key)
 
         try:
             articles = await self.client.get_latest_sports_news(locale)
         except Exception:
             logger.exception("latest_news_load_failed", extra={"locale": locale})
             articles = []
+        if not articles and stale_cached is not None:
+            logger.warning("latest_news_using_stale_cache", extra={"locale": locale, "count": len(stale_cached)})
+            return stale_cached
+
         self.cache.set(cache_key, articles, HOME_NEWS_CACHE_TTL_SECONDS)
         logger.info("latest_news_loaded", extra={"locale": locale, "count": len(articles)})
         return articles
@@ -44,6 +49,7 @@ class NewsService:
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
+        stale_cached = self.cache.get_stale(cache_key)
 
         try:
             articles = await self.client.get_related_news(
@@ -55,6 +61,13 @@ class NewsService:
         except Exception:
             logger.exception("related_news_load_failed", extra={"match_id": match_id, "locale": locale})
             articles = []
+        if not articles and stale_cached is not None:
+            logger.warning(
+                "related_news_using_stale_cache",
+                extra={"match_id": match_id, "locale": locale, "count": len(stale_cached)},
+            )
+            return stale_cached
+
         self.cache.set(cache_key, articles, RELATED_MATCH_NEWS_CACHE_TTL_SECONDS)
         logger.info("related_news_loaded", extra={"match_id": match_id, "locale": locale, "count": len(articles)})
         return articles
@@ -64,8 +77,12 @@ class NewsService:
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
+        stale_cached = self.cache.get_stale(cache_key)
 
         article = await self.client.get_article_details(identifier, locale)
+        if article is None and stale_cached is not None:
+            logger.warning("news_article_using_stale_cache", extra={"identifier": identifier, "locale": locale})
+            return stale_cached
         if article is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="News article not found")
 
