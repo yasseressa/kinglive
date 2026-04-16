@@ -26,10 +26,18 @@ SOCIAL_COLUMNS = [
 
 
 def upgrade() -> None:
+    inspector = sa.inspect(op.get_bind())
+    existing_columns = {column["name"] for column in inspector.get_columns("redirect_settings")}
+
     for column_name, column_type in SOCIAL_COLUMNS:
-        op.add_column("redirect_settings", sa.Column(column_name, column_type, nullable=True))
+        if column_name not in existing_columns:
+            op.add_column("redirect_settings", sa.Column(column_name, column_type, nullable=True))
 
 
 def downgrade() -> None:
+    inspector = sa.inspect(op.get_bind())
+    existing_columns = {column["name"] for column in inspector.get_columns("redirect_settings")}
+
     for column_name, _ in reversed(SOCIAL_COLUMNS):
-        op.drop_column("redirect_settings", column_name)
+        if column_name in existing_columns:
+            op.drop_column("redirect_settings", column_name)
