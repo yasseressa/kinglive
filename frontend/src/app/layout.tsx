@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
-  const cookieLocale = cookieStore.get("melbet-locale")?.value ?? defaultLocale;
+  const cookieLocale = cookieStore.get("goal-stream-locale")?.value ?? defaultLocale;
   const locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
 
   return (

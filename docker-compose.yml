@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    container_name: melbet_live_frontend
+    container_name: goal_stream_frontend
     env_file:
       - ./frontend/.env.example
     environment:
@@ -18,7 +18,7 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: melbet_live_backend
+    container_name: goal_stream_backend
     env_file:
       - ./backend/.env.example
     environment:
@@ -34,17 +34,17 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: melbet_live_postgres
+    container_name: goal_stream_postgres
     environment:
-      POSTGRES_DB: melbet_live
-      POSTGRES_USER: melbet
-      POSTGRES_PASSWORD: melbet
+      POSTGRES_DB: goal_stream
+      POSTGRES_USER: goal_stream
+      POSTGRES_PASSWORD: goal_stream
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U melbet -d melbet_live"]
+      test: ["CMD-SHELL", "pg_isready -U goal_stream -d goal_stream"]
       interval: 10s
       timeout: 5s
       retries: 5

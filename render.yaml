@@ -1,5 +1,5 @@
 services:
-  - name: melbet-live-api
+  - name: goal-stream-api
     type: web
     runtime: docker
     plan: free
@@ -13,7 +13,7 @@ services:
         value: "false"
       - key: DATABASE_URL
         fromDatabase:
-          name: melbet-live-db
+          name: goal-stream-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -22,7 +22,7 @@ services:
       - key: GNEWS_API_KEY
         sync: false
 
-  - name: melbet-live-com
+  - name: goal-stream-web
     type: web
     runtime: docker
     plan: free
@@ -33,10 +33,10 @@ services:
       - key: INTERNAL_API_BASE_URL
         fromService:
           type: web
-          name: melbet-live-api
+          name: goal-stream-api
           property: hostport
 
 databases:
-  - name: melbet-live-db
+  - name: goal-stream-db
     plan: free
-    databaseName: melbet_live
+    databaseName: goal_stream

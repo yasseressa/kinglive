@@ -1,4 +1,4 @@
-# Melbet Live Platform
+# Goal Stream Platform
 
 Production-structured sports platform with a FastAPI backend and a Next.js frontend. The backend serves sports/news data APIs and admin APIs, while the frontend provides locale-aware public pages and admin management screens.
 
@@ -80,9 +80,9 @@ npm run dev
 
 This repo includes a root `render.yaml` for a free-friendly Render setup with:
 
-- `melbet-live-db` as a Render Postgres database
-- `melbet-live-api` as a Docker web service
-- `melbet-live-com` as a Docker web service
+- `goal-stream-db` as a Render Postgres database
+- `goal-stream-api` as a Docker web service
+- `goal-stream-web` as a Docker web service
 
 ### Render deployment flow
 

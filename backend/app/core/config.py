@@ -37,9 +37,9 @@ class Settings(BaseSettings):
 
     database_host: str = "localhost"
     database_port: int = 5432
-    database_name: str = "melbet_live"
-    database_user: str = "melbet"
-    database_password: str = "melbet"
+    database_name: str = "goal_stream"
+    database_user: str = "goal_stream"
+    database_password: str = "goal_stream"
     database_url_override: str | None = Field(default=None, alias="DATABASE_URL")
     sync_database_url_override: str | None = Field(default=None, alias="SYNC_DATABASE_URL")
     cors_allow_origins: str = "http://localhost:3000,http://127.0.0.1:3000"

@@ -18,12 +18,12 @@ export function middleware(request: NextRequest) {
     const preferredLocale = getPreferredLocale(request);
     url.pathname = `/${preferredLocale}${pathname === "/" ? "" : pathname}`;
     const response = NextResponse.redirect(url);
-    response.cookies.set("melbet-locale", preferredLocale);
+    response.cookies.set("goal-stream-locale", preferredLocale);
     return response;
   }
 
   const response = NextResponse.next();
-  response.cookies.set("melbet-locale", firstSegment);
+  response.cookies.set("goal-stream-locale", firstSegment);
   return response;
 }
 
@@ -32,7 +32,7 @@ export const config = {
 };
 
 function getPreferredLocale(request: NextRequest) {
-  const cookieLocale = request.cookies.get("melbet-locale")?.value;
+  const cookieLocale = request.cookies.get("goal-stream-locale")?.value;
   if (cookieLocale && locales.includes(cookieLocale as (typeof locales)[number])) {
     return cookieLocale as (typeof locales)[number];
   }
