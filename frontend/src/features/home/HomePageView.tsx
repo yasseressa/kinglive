@@ -1,16 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { Locale, Messages } from "@/i18n";
 import type { HomeResponse, MatchSummary, NewsSummary } from "@/lib/api/types";
+import { getDisplayMatchStatus, getMatchBucket } from "@/lib/utils";
 
 export function HomePageView({ locale, messages, data }: { locale: Locale; messages: Messages; data: HomeResponse }) {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setNow(new Date());
+    }, 60_000);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  const groupedMatches = { yesterday: [] as MatchSummary[], today: [] as MatchSummary[], tomorrow: [] as MatchSummary[] };
+  const seenMatchIds = new Set<string>();
+
+  for (const match of [...data.yesterday_matches, ...data.today_matches, ...data.tomorrow_matches]) {
+    if (seenMatchIds.has(match.external_match_id)) {
+      continue;
+    }
+
+    seenMatchIds.add(match.external_match_id);
+
+    const bucketId = getMatchBucket(match.start_time, now);
+    if (bucketId) {
+      groupedMatches[bucketId].push(match);
+    }
+  }
+
   const buckets = [
-    { id: "today", label: messages.todayMatches, matches: data.today_matches },
-    { id: "yesterday", label: messages.yesterdayMatches, matches: data.yesterday_matches },
-    { id: "tomorrow", label: messages.tomorrowMatches, matches: data.tomorrow_matches },
+    { id: "today", label: messages.todayMatches, matches: groupedMatches.today },
+    { id: "yesterday", label: messages.yesterdayMatches, matches: groupedMatches.yesterday },
+    { id: "tomorrow", label: messages.tomorrowMatches, matches: groupedMatches.tomorrow },
   ] as const;
 
   const [activeBucketId, setActiveBucketId] = useState<(typeof buckets)[number]["id"]>("today");
@@ -56,7 +83,7 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
             <DarkEmptyState message={messages.empty} />
           ) : (
             activeBucket.matches.slice(0, 8).map((match) => (
-              <FeatureMatchRow key={match.external_match_id} locale={locale} match={match} messages={messages} />
+              <FeatureMatchRow key={match.external_match_id} locale={locale} match={match} messages={messages} now={now} />
             ))
           )}
         </div>
@@ -89,7 +116,9 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
   );
 }
 
-function FeatureMatchRow({ locale, match, messages }: { locale: Locale; match: MatchSummary; messages: Messages }) {
+function FeatureMatchRow({ locale, match, messages, now }: { locale: Locale; match: MatchSummary; messages: Messages; now: Date }) {
+  const displayStatus = getDisplayMatchStatus(match.status, match.start_time, now);
+
   return (
     <Link
       href={`/${locale}/matches/${encodeURIComponent(match.external_match_id)}`}
@@ -107,7 +136,7 @@ function FeatureMatchRow({ locale, match, messages }: { locale: Locale; match: M
         <div className="grid flex-1 gap-4 min-[480px]:grid-cols-[1fr_auto_1fr] min-[480px]:items-center">
           <TeamDisplay align="start" name={match.home_team} logo={match.home_team_crest} />
           <div className="text-center">
-            <p className="text-lg font-black uppercase tracking-[0.08em] text-[#f1bc26]">{statusText(match.status, messages)}</p>
+            <p className="text-lg font-black uppercase tracking-[0.08em] text-[#f1bc26]">{statusText(displayStatus, messages)}</p>
             <p className="mt-1 text-sm font-bold uppercase tracking-[0.24em] text-[#908a82]">{messages.versus}</p>
           </div>
           <TeamDisplay align="end" name={match.away_team} logo={match.away_team_crest} />
