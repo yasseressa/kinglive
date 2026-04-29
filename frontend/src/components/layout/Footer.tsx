@@ -18,7 +18,7 @@ export function Footer({ locale, messages }: { locale: Locale; messages: Message
       </div>
       <div className="bg-[#eceef2]">
         <div className="mx-auto max-w-[1024px] px-3 py-4 text-center text-xs text-[#222]">
-          (c) 2026 Goal Stream
+          (c) 2026 King Live
         </div>
       </div>
     </footer>

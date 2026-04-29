@@ -10,7 +10,7 @@ export function BrandLogo({ locale, compact = false }: { locale: Locale; compact
           compact ? "min-h-11 min-w-[132px]" : "min-h-[70px] min-w-[172px] sm:min-w-[200px]"
         }`}
       >
-        <span className={`font-bold leading-8 ${compact ? "text-xl" : "text-2xl sm:text-[30px]"}`}>Goal Stream</span>
+        <span className={`font-bold leading-8 ${compact ? "text-xl" : "text-2xl sm:text-[30px]"}`}>King Live</span>
       </span>
     </Link>
   );
