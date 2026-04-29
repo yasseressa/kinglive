@@ -6,72 +6,37 @@ import type { Locale, Messages } from "@/i18n";
 
 export function Header({ locale, messages }: { locale: Locale; messages: Messages }) {
   const navLinks = [
-    { href: `/${locale}#matches`, label: messages.matches, icon: <CalendarIcon /> },
-    { href: `/${locale}#news`, label: messages.sportsNews, icon: <NewsIcon /> },
-    { href: `/${locale}/contact`, label: messages.contactUs, icon: <MailIcon /> },
+    { href: `/${locale}#matches`, label: messages.matches },
+    { href: `/${locale}#news`, label: messages.sportsNews },
+    { href: `/${locale}/contact`, label: messages.contactUs },
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[rgba(255,194,0,0.16)] bg-[rgba(7,7,7,0.92)] backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-3 px-2.5 py-3 min-[380px]:px-3 min-[420px]:py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-        <div className="flex items-center justify-between gap-3 min-[420px]:gap-4">
+    <header className="relative z-40 mb-3 bg-white shadow-[0_0_4px_rgba(0,0,0,0.3)]">
+      <div className="mx-auto flex min-h-[85px] max-w-[1024px] flex-col gap-3 px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center justify-center gap-3 sm:justify-start">
           <BrandLogo locale={locale} />
-          <div className="lg:hidden">
-            <LanguageSwitcher locale={locale} />
-          </div>
         </div>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
-          <nav className="flex flex-wrap gap-2 sm:gap-3">
-            {navLinks.map((link, index) => (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <nav className="flex flex-wrap justify-center gap-1 sm:justify-start">
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`inline-flex min-h-[3rem] flex-1 items-center justify-center gap-2 rounded-[0.95rem] border px-3 text-center text-[0.72rem] font-extrabold uppercase tracking-[0.06em] transition min-[420px]:flex-none min-[420px]:px-4 min-[420px]:text-sm sm:min-h-[3.2rem] sm:px-5 sm:tracking-[0.08em] ${
-                  index === 0
-                    ? "border-[#c69111] bg-[rgba(255,194,0,0.06)] text-white shadow-[inset_0_0_0_1px_rgba(255,194,0,0.06)]"
-                    : "border-[rgba(255,194,0,0.14)] bg-[#0f0f0f] text-[#d8d1c5] hover:border-[#c69111] hover:text-white"
-                }`}
+                className="block rounded-lg px-2.5 py-2 text-[15px] font-semibold text-[#222] transition hover:text-[#931800] sm:text-[17px]"
                 data-disable-global-redirect
               >
-                <span className="text-[#f1bc26]">{link.icon}</span>
                 <span>{link.label}</span>
               </Link>
             ))}
           </nav>
 
-          <div className="hidden lg:block">
+          <div className="flex justify-center">
             <LanguageSwitcher locale={locale} />
           </div>
         </div>
       </div>
     </header>
-  );
-}
-
-function CalendarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" aria-hidden="true">
-      <rect x="3" y="5" width="18" height="16" rx="2" />
-      <path d="M16 3v4M8 3v4M3 10h18" />
-    </svg>
-  );
-}
-
-function NewsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" aria-hidden="true">
-      <path d="M5 5h11a3 3 0 0 1 3 3v10H8a3 3 0 0 1-3-3V5Z" />
-      <path d="M8 9h8M8 13h8M8 17h5" />
-    </svg>
-  );
-}
-
-function MailIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" aria-hidden="true">
-      <path d="M4 6h16v12H4z" />
-      <path d="m4 8 8 6 8-6" />
-    </svg>
   );
 }

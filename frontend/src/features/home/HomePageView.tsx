@@ -44,31 +44,35 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
   const activeBucket = buckets.find((bucket) => bucket.id === activeBucketId) ?? buckets[0];
 
   return (
-    <div className="space-y-6 pb-8 min-[420px]:space-y-8 min-[420px]:pb-10 sm:space-y-10 lg:space-y-12 lg:pb-14">
-      <section
-        id="matches"
-        className="rounded-[1.45rem] border border-[rgba(255,194,0,0.14)] bg-[linear-gradient(180deg,#0a0a0a_0%,#070707_100%)] p-3.5 shadow-[0_18px_50px_rgba(0,0,0,0.34)] min-[380px]:p-4 min-[420px]:rounded-[1.7rem] min-[420px]:p-5 sm:p-6 lg:p-8"
-      >
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <SectionEyebrow locale={locale} title={messages.upcoming} accent={messages.matches} />
-            <p className="mt-3 max-w-[38rem] text-sm leading-7 text-[#a9a39a] sm:text-base">
-              {messages.matchesIntro}
-            </p>
-          </div>
+    <div className="space-y-5 pb-8">
+      <div className="flex h-5 justify-end overflow-hidden px-1">
+        <span className="rounded-t-md bg-[#eceef2] px-3 pt-0.5 text-[10px] text-[#222] shadow-[0_0_4px_rgba(0,0,0,0.3)]">
+          {locale === "ar" ? "بتوقيت جهازك" : "Your local time"}
+        </span>
+      </div>
 
-          <div className="flex flex-wrap gap-2">
+      <section id="matches" className="overflow-hidden rounded-lg bg-white shadow-[0_0_4px_rgba(0,0,0,0.3)]">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#ddd] bg-[#eceef2] p-2 sm:p-3">
+          <h2 className="inline-flex items-center justify-center rounded-lg bg-[#273340] px-3 py-1.5 text-sm font-semibold text-white sm:text-base">
+            {locale === "ar" ? "جدول المباريات" : messages.latestHeadlines}
+          </h2>
+
+          <div className="flex w-full gap-1.5 sm:w-auto">
             {buckets.map((bucket) => {
               const active = bucket.id === activeBucket.id;
+              const colorClass =
+                bucket.id === "yesterday"
+                  ? "bg-[#104783]"
+                  : bucket.id === "tomorrow"
+                    ? "bg-[#af5100]"
+                    : "bg-[#931800]";
               return (
                 <button
                   key={bucket.id}
                   type="button"
                   onClick={() => setActiveBucketId(bucket.id)}
-                  className={`flex-1 rounded-[0.9rem] border px-3 py-2.5 text-[0.68rem] font-extrabold uppercase tracking-[0.08em] transition min-[420px]:flex-none min-[420px]:px-4 min-[420px]:text-xs min-[420px]:tracking-[0.12em] sm:text-sm ${
-                    active
-                      ? "border-[#f1bc26] bg-[linear-gradient(180deg,#ffd34c_0%,#f0af00_100%)] text-[#111]"
-                      : "border-[rgba(255,194,0,0.18)] bg-[#101010] text-[#ddd5c8] hover:border-[#f1bc26] hover:text-[#f1bc26]"
+                  className={`min-h-9 flex-1 rounded-lg px-2 py-1.5 text-center text-xs font-bold text-white transition sm:min-w-[116px] sm:text-sm ${
+                    active ? colorClass : "bg-[#273340] hover:bg-[#931800]"
                   }`}
                 >
                   {bucket.label}
@@ -78,7 +82,7 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
           </div>
         </div>
 
-        <div className="mt-7 space-y-3">
+        <div className="p-2 sm:p-3">
           {activeBucket.matches.length === 0 ? (
             <DarkEmptyState message={messages.empty} />
           ) : (
@@ -89,18 +93,17 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
         </div>
       </section>
 
-      <section
-        id="news"
-        className="rounded-[1.45rem] border border-[rgba(255,194,0,0.14)] bg-[linear-gradient(180deg,#0a0a0a_0%,#070707_100%)] p-3.5 shadow-[0_18px_50px_rgba(0,0,0,0.34)] min-[380px]:p-4 min-[420px]:rounded-[1.7rem] min-[420px]:p-5 sm:p-6 lg:p-8"
-      >
-        <div>
-          <SectionEyebrow locale={locale} title={messages.latest} accent={messages.sportsNews} />
-          <p className="mt-3 max-w-[38rem] text-sm leading-7 text-[#a9a39a] sm:text-base">
-            {messages.newsIntro}
-          </p>
+      <section id="news" className="overflow-hidden rounded-lg bg-white shadow-[0_0_4px_rgba(0,0,0,0.3)]">
+        <div className="flex items-center justify-between border-b border-[#ddd] bg-[#eceef2] p-2 sm:p-3">
+          <h2 className="inline-flex items-center justify-center rounded-lg bg-[#273340] px-3 py-1.5 text-sm font-semibold text-white sm:text-base">
+            {locale === "ar" ? "يلا شوت بث مباشر" : messages.sportsNews}
+          </h2>
+          <Link href={`/${locale}#news`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#273340] text-2xl leading-none text-white transition hover:bg-[#931800]">
+            ›
+          </Link>
         </div>
 
-        <div className="mt-7 grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3">
           {data.latest_news.length === 0 ? (
             <div className="lg:col-span-3">
               <DarkEmptyState message={messages.loadFailed} />
@@ -118,34 +121,52 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
 
 function FeatureMatchRow({ locale, match, messages, now }: { locale: Locale; match: MatchSummary; messages: Messages; now: Date }) {
   const displayStatus = getDisplayMatchStatus(match.status, match.start_time, now);
+  const statClass =
+    displayStatus === "live"
+      ? "bg-[#d00000] animate-pulse"
+      : displayStatus === "finished"
+        ? "bg-[#474747]"
+        : displayStatus === "scheduled"
+          ? "bg-[#263545]"
+          : "bg-[#af5100]";
 
   return (
     <Link
       href={`/${locale}/matches/${encodeURIComponent(match.external_match_id)}`}
       target="_blank"
       rel="noreferrer"
-      className="block rounded-[1.25rem] border border-[rgba(255,194,0,0.12)] bg-[linear-gradient(180deg,#121212_0%,#0d0d0d_100%)] px-4 py-4 transition hover:border-[#f1bc26] hover:bg-[#121212] sm:px-5"
+      className="group relative mb-3 block overflow-hidden rounded-lg bg-[#eceef2] text-[#222] transition hover:text-[#222]"
       data-disable-global-redirect
     >
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
-        <div className="min-w-0 xl:w-[12rem]">
-          <p className="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-[#f1bc26] min-[420px]:text-[0.68rem] min-[420px]:tracking-[0.18em]">{formatMatchDate(match.start_time, locale)}</p>
-          <p className="mt-2 text-sm font-semibold text-[#d6d0c5]">{formatMatchTime(match.start_time, locale)}</p>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center px-2 py-3 sm:px-4">
+        <TeamDisplay align="start" name={match.home_team} logo={match.home_team_crest} />
+
+        <div className="mx-auto flex min-w-[84px] flex-col items-center text-center">
+          <span className="text-sm font-semibold sm:text-base">{formatMatchTime(match.start_time, locale)}</span>
+          <span className="mt-1 hidden text-lg font-semibold sm:inline-flex">
+            <span>0</span>
+            <span className="mx-1">-</span>
+            <span>0</span>
+          </span>
+          <span className={`mt-1 inline-flex min-h-[25px] min-w-[62px] items-center justify-center rounded-lg px-2 py-1 text-[11px] font-semibold text-white sm:text-xs ${statClass}`}>
+            {statusText(displayStatus, messages)}
+          </span>
         </div>
 
-        <div className="grid flex-1 gap-4 min-[480px]:grid-cols-[1fr_auto_1fr] min-[480px]:items-center">
-          <TeamDisplay align="start" name={match.home_team} logo={match.home_team_crest} />
-          <div className="text-center">
-            <p className="text-lg font-black uppercase tracking-[0.08em] text-[#f1bc26]">{statusText(displayStatus, messages)}</p>
-            <p className="mt-1 text-sm font-bold uppercase tracking-[0.24em] text-[#908a82]">{messages.versus}</p>
-          </div>
-          <TeamDisplay align="end" name={match.away_team} logo={match.away_team_crest} />
-        </div>
-
-        <div className="xl:w-[11rem] xl:text-right">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8f8a81]">{match.competition_name}</p>
-        </div>
+        <TeamDisplay align="end" name={match.away_team} logo={match.away_team_crest} />
       </div>
+
+      <div className="border-t border-[#ddd]">
+        <ul className="grid grid-cols-2 text-center text-xs text-[#222] sm:grid-cols-3 sm:text-sm">
+          <li className="px-2 py-1.5">{messages.watch}</li>
+          <li className="hidden px-2 py-1.5 sm:block">{formatMatchDate(match.start_time, locale)}</li>
+          <li className="px-2 py-1.5">{match.competition_name}</li>
+        </ul>
+      </div>
+
+      <span className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 transition group-hover:opacity-100" aria-hidden="true">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-lg text-[#931800]">›</span>
+      </span>
     </Link>
   );
 }
@@ -156,11 +177,11 @@ function NewsPanel({ locale, article, readMoreLabel }: { locale: Locale; article
       href={`/${locale}/news/${article.slug}`}
       target="_blank"
       rel="noreferrer"
-      className="group flex h-full flex-col rounded-[1.3rem] border border-[rgba(255,194,0,0.12)] bg-[#101010] p-4 transition hover:border-[#f1bc26]"
+      className="group flex h-full flex-col overflow-hidden rounded-lg bg-[#eceef2] transition hover:text-[#931800]"
       data-disable-global-redirect
     >
       {article.image_url ? (
-        <div className="overflow-hidden rounded-[1rem] border border-[rgba(255,194,0,0.08)] bg-[#17120d]">
+        <div className="h-[150px] overflow-hidden bg-[#d8dbe1]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={article.image_url}
@@ -171,12 +192,14 @@ function NewsPanel({ locale, article, readMoreLabel }: { locale: Locale; article
           />
         </div>
       ) : null}
-      <p className="text-[0.7rem] font-extrabold uppercase tracking-[0.18em] text-[#f1bc26]">{article.source}</p>
-      <h3 className="mt-3 text-lg font-black uppercase leading-6 tracking-[-0.02em] text-white transition group-hover:text-[#ffe08b]">
-        {article.title}
-      </h3>
-      <p className="mt-3 line-clamp-4 flex-1 text-sm leading-6 text-[#b6b0a5] min-[420px]:leading-7">{article.summary}</p>
-      <span className="mt-4 text-sm font-bold uppercase tracking-[0.12em] text-[#f1bc26]">{readMoreLabel}</span>
+      <div className="flex flex-1 flex-col p-3">
+        <p className="text-xs font-semibold text-[#626883]">{article.source}</p>
+        <h3 className="mt-2 line-clamp-3 text-[15px] font-semibold leading-6 text-[#222] transition group-hover:text-[#931800]">
+          {article.title}
+        </h3>
+        <p className="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-[#484848]">{article.summary}</p>
+        <span className="mt-3 text-sm font-semibold text-[#931800]">{readMoreLabel}</span>
+      </div>
     </Link>
   );
 }
@@ -185,50 +208,29 @@ function TeamDisplay({ name, logo, align }: { name: string; logo?: string | null
   const isEnd = align === "end";
 
   return (
-    <div className={`flex items-center gap-3 ${isEnd ? "min-[480px]:flex-row-reverse min-[480px]:text-right" : "text-left"}`}>
+    <div className={`flex min-w-0 flex-col items-center text-center sm:flex-row sm:gap-3 ${isEnd ? "sm:flex-row-reverse sm:text-right" : "sm:text-left"}`}>
       <TeamLogo src={logo} alt={name} />
-      <p className="text-sm font-black uppercase tracking-[0.03em] text-[#f6f0e5] min-[420px]:text-base sm:text-lg">{name}</p>
+      <p className="mt-1 max-w-full truncate text-[13px] font-semibold text-[#222] sm:mt-0 sm:text-base">{name}</p>
     </div>
   );
 }
 
 function TeamLogo({ src, alt }: { src?: string | null; alt: string }) {
   if (!src) {
-    return <div className="h-11 w-11 rounded-full border border-[rgba(255,194,0,0.16)] bg-[#0f0f0f]" aria-hidden="true" />;
+    return <div className="h-12 w-12 rounded-full bg-[#f6f7fa] sm:h-[70px] sm:w-[70px]" aria-hidden="true" />;
   }
 
   return (
-    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,194,0,0.16)] bg-[#0f0f0f] p-2">
+    <div className="flex h-12 w-12 items-center justify-center bg-transparent p-1 sm:h-[70px] sm:w-[70px]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={alt} className="h-full w-full object-contain" loading="lazy" referrerPolicy="no-referrer" />
     </div>
   );
 }
 
-function SectionEyebrow({ locale, title, accent }: { locale: Locale; title: string; accent: string }) {
-  const isArabic = locale === "ar";
-
-  return (
-    <div>
-      <h2 className="text-[1.65rem] font-black uppercase leading-none tracking-[-0.04em] text-white min-[420px]:text-[2rem] sm:text-[2.5rem]">
-        {isArabic ? (
-          <>
-            <span className="text-[#f1bc26]">{accent}</span> {title}
-          </>
-        ) : (
-          <>
-            {title} <span className="text-[#f1bc26]">{accent}</span>
-          </>
-        )}
-      </h2>
-      <span className="mt-3 block h-[3px] w-16 bg-[#f1bc26]" />
-    </div>
-  );
-}
-
 function DarkEmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-[1.2rem] border border-[rgba(255,194,0,0.12)] bg-[#0d0d0d] px-4 py-5 text-sm leading-7 text-[#b4aea2]">
+    <div className="flex min-h-[180px] items-center justify-center rounded-lg bg-[#eceef2] px-4 py-5 text-center text-sm leading-7 text-[#666]">
       {message}
     </div>
   );

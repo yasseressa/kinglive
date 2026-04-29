@@ -12,10 +12,10 @@ export function NewsArticleView({ locale, messages, article }: { locale: Locale;
           <img src={article.image_url} alt={article.title} className="h-[320px] w-full object-cover" loading="lazy" referrerPolicy="no-referrer" />
         ) : null}
         <div className="space-y-4 p-6 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#f4bb41]">{article.source}</p>
-          <h1 className="text-4xl font-black text-[#f7f0e2]">{article.title}</h1>
-          <p className="text-sm text-[#ccb992]">{messages.publishedOn}: {formatDate(article.published_at, locale)}</p>
-          <div className="prose-content text-base leading-8 text-[#efe5d3]">
+          <p className="text-xs font-bold text-[#931800]">{article.source}</p>
+          <h1 className="text-3xl font-semibold leading-tight text-[#222] sm:text-4xl">{article.title}</h1>
+          <p className="text-sm text-[#626883]">{messages.publishedOn}: {formatDate(article.published_at, locale)}</p>
+          <div className="prose-content text-base leading-8 text-[#333]">
             {article.content.split("\n").map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
             ))}

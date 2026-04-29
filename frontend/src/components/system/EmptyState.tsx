@@ -1,6 +1,6 @@
 export function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-[1.5rem] border border-dashed border-[#5a431d] bg-[#17120d] p-6 text-sm text-[#d1bf99]">
+    <div className="rounded-lg border border-dashed border-[#d8dbe1] bg-white p-6 text-sm text-[#666] shadow-[0_0_4px_rgba(0,0,0,0.12)]">
       {message}
     </div>
   );

@@ -40,7 +40,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
       <button
         type="button"
         onClick={() => setIsOpen((value) => !value)}
-        className="inline-flex h-11 items-center gap-2 rounded-full border border-[rgba(255,194,0,0.18)] bg-[linear-gradient(180deg,#171717_0%,#0d0d0d_100%)] px-3.5 text-[#f7f0e2] shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition hover:border-[#c69111] hover:text-white"
+        className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#273340] px-3 text-white shadow-[0_0_4px_rgba(0,0,0,0.18)] transition hover:bg-[#931800]"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={localeMeta[locale].label}
@@ -51,12 +51,12 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
       </button>
 
       <div
-        className={`absolute top-[calc(100%+0.65rem)] z-50 min-w-[13rem] overflow-hidden rounded-[1.15rem] border border-[rgba(255,194,0,0.16)] bg-[rgba(11,11,11,0.96)] p-2 shadow-[0_22px_60px_rgba(0,0,0,0.42)] backdrop-blur-xl transition-all duration-200 ${
+        className={`absolute top-[calc(100%+0.45rem)] z-50 min-w-[13rem] overflow-hidden rounded-lg border border-[#ddd] bg-white p-2 shadow-[0_12px_30px_rgba(0,0,0,0.22)] transition-all duration-200 ${
           locale === "ar" ? "left-0" : "right-0"
         } ${isOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"}`}
       >
-        <div className="mb-1 px-2 py-1 text-[0.68rem] font-bold uppercase tracking-[0.18em] text-[#a8956f]">
-          {locale === "ar" ? "اللغة" : "Language"}
+        <div className="mb-1 px-2 py-1 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-[#626883]">
+          Language
         </div>
         <div className="space-y-1">
           {locales.map((item) => {
@@ -67,10 +67,8 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
               <Link
                 key={item}
                 href={href}
-                className={`flex items-center justify-between rounded-[0.95rem] px-3 py-2.5 text-sm font-semibold transition ${
-                  active
-                    ? "bg-[linear-gradient(180deg,#ffd34c_0%,#f0af00_100%)] text-[#17120d]"
-                    : "text-[#efe5d3] hover:bg-[#1d1813] hover:text-white"
+                className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
+                  active ? "bg-[#931800] text-white" : "text-[#222] hover:bg-[#eceef2] hover:text-[#931800]"
                 }`}
                 data-disable-global-redirect
                 prefetch={false}
@@ -78,7 +76,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
                 onClick={() => setIsOpen(false)}
               >
                 <span>{localeMeta[item].nativeLabel}</span>
-                <span className={`text-[0.68rem] uppercase tracking-[0.14em] ${active ? "text-[#43310b]" : "text-[#8f7e5d]"}`}>
+                <span className={`text-[0.68rem] uppercase tracking-[0.14em] ${active ? "text-white/80" : "text-[#626883]"}`}>
                   {item}
                 </span>
               </Link>

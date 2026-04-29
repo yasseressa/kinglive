@@ -1,6 +1,6 @@
 export function LoadingState({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex items-center justify-center rounded-[1.5rem] border border-dashed border-[#5a431d] bg-[#17120d] p-10 text-sm font-semibold text-[#f4bb41] ${className}`}>
+    <div className={`flex items-center justify-center rounded-lg border border-dashed border-[#d8dbe1] bg-white p-10 text-sm font-semibold text-[#931800] ${className}`}>
       Loading...
     </div>
   );
