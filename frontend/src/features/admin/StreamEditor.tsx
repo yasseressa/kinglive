@@ -65,11 +65,11 @@ export function StreamEditor({
   }, [initialMatchBuckets, locale]);
 
   if (loading) {
-    return <div className="text-[#f4bb41]">{messages.loading}</div>;
+    return <div className="text-[#931800]">{messages.loading}</div>;
   }
 
   if (error) {
-    return <div className="text-[#f5d7c9]">{error}</div>;
+    return <div className="text-[#931800]">{error}</div>;
   }
 
   return (
@@ -103,3 +103,5 @@ export function StreamEditor({
     />
   );
 }
+
+

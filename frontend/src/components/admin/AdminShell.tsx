@@ -42,20 +42,20 @@ export function AdminShell({ children, locale, messages }: { children: React.Rea
   }
 
   if (!ready || !authenticated) {
-    return <div className="flex min-h-screen items-center justify-center text-[#f4bb41]">{messages.loading}</div>;
+    return <div className="flex min-h-screen items-center justify-center bg-[#eceef2] text-[#931800]">{messages.loading}</div>;
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
+    <div className="min-h-screen bg-[#eceef2] text-[#222]">
       <div className="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-6 lg:grid-cols-[260px_1fr] lg:px-8">
-        <aside className="rounded-[1.75rem] border border-[#4b3818] bg-[linear-gradient(180deg,_#17120d,_#0d0d0d)] p-5 text-[#f5efe3] shadow-card">
-          <p className="text-xs uppercase tracking-[0.3em] text-[#f4bb41]">{siteConfig.name}</p>
+        <aside className="rounded-lg bg-white p-5 text-[#222] shadow-[0_0_4px_rgba(0,0,0,0.3)]">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#931800]">{siteConfig.name}</p>
           <div className="mt-4">
             <LanguageSwitcher locale={locale} />
           </div>
           <nav className="mt-8 space-y-2">
             {links.map((link) => (
-              <Link key={link.href} href={link.href} className="block rounded-2xl px-4 py-3 text-sm font-semibold transition hover:bg-[#21180f] hover:text-[#f4bb41]">
+              <Link key={link.href} href={link.href} className="block rounded-lg px-4 py-3 text-sm font-semibold transition hover:bg-[#eceef2] hover:text-[#931800]">
                 {link.label}
               </Link>
             ))}
@@ -76,3 +76,5 @@ export function AdminShell({ children, locale, messages }: { children: React.Rea
     </div>
   );
 }
+
+

@@ -98,9 +98,6 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
           <h2 className="inline-flex items-center justify-center rounded-lg bg-[#273340] px-3 py-1.5 text-sm font-semibold text-white sm:text-base">
             {locale === "ar" ? "يلا شوت بث مباشر" : messages.sportsNews}
           </h2>
-          <Link href={`/${locale}#news`} className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#273340] text-2xl leading-none text-white transition hover:bg-[#931800]">
-            ›
-          </Link>
         </div>
 
         <div className="grid gap-3 p-3 sm:grid-cols-2 lg:grid-cols-3">

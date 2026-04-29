@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import type { Locale, Messages } from "@/i18n";
@@ -13,14 +13,12 @@ export function Footer({ locale, messages }: { locale: Locale; messages: Message
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-[#484848] md:justify-end">
           <Link href={`/${locale}`} className="rounded-lg px-2 py-1 transition hover:text-[#931800]" data-disable-global-redirect>{messages.home}</Link>
-          <Link href={`/${locale}/matches`} className="rounded-lg px-2 py-1 transition hover:text-[#931800]" data-disable-global-redirect>{messages.matches}</Link>
-          <Link href={`/${locale}#news`} className="rounded-lg px-2 py-1 transition hover:text-[#931800]" data-disable-global-redirect>{messages.sportsNews}</Link>
           <Link href={`/${locale}/contact`} className="rounded-lg px-2 py-1 transition hover:text-[#931800]" data-disable-global-redirect>{messages.contactUs}</Link>
         </div>
       </div>
       <div className="bg-[#eceef2]">
         <div className="mx-auto max-w-[1024px] px-3 py-4 text-center text-xs text-[#222]">
-          © 2026 Goal Stream
+          (c) 2026 Goal Stream
         </div>
       </div>
     </footer>

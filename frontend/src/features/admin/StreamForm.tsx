@@ -84,7 +84,7 @@ export function StreamForm({
           <option value="embed">{messages.streamTypeEmbed}</option>
           <option value="hls">{messages.streamTypeHls}</option>
         </Select>
-        <label className="flex items-center gap-3 text-sm font-semibold text-[#f5efe3]">
+        <label className="flex items-center gap-3 text-sm font-semibold text-[#222]">
           <input
             type="checkbox"
             checked={values.show_stream}
@@ -93,28 +93,28 @@ export function StreamForm({
           />
           {messages.showStream}
         </label>
-        {error ? <p className="text-sm text-[#f5d7c9]">{error}</p> : null}
+        {error ? <p className="text-sm text-[#931800]">{error}</p> : null}
         <Button type="submit" disabled={loading}>{loading ? messages.loading : mode === "create" ? messages.save : messages.update}</Button>
       </form>
-      {matchBucketsError ? <p className="text-sm text-[#f5d7c9]">{matchBucketsError}</p> : null}
+      {matchBucketsError ? <p className="text-sm text-[#931800]">{matchBucketsError}</p> : null}
       {matchBuckets?.some((bucket) => bucket.matches.length > 0) ? (
-        <div className="space-y-4 border-t border-[#3a2b14] pt-5">
+        <div className="space-y-4 border-t border-[#ddd] pt-5">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#f4bb41]">{messages.availableMatches}</p>
-            <p className="mt-2 text-sm text-[#ccb992]">{messages.pickMatchIdHelp}</p>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#931800]">{messages.availableMatches}</p>
+            <p className="mt-2 text-sm text-[#626883]">{messages.pickMatchIdHelp}</p>
           </div>
           <div className="space-y-4">
             {matchBuckets.map((bucket) =>
               bucket.matches.length > 0 ? (
                 <div key={bucket.label} className="space-y-3">
-                  <p className="text-sm font-semibold text-[#f7f0e2]">{bucket.label}</p>
+                  <p className="text-sm font-semibold text-[#222]">{bucket.label}</p>
                   <div className="space-y-2">
                     {bucket.matches.map((match) => (
-                      <div key={match.external_match_id} className="flex flex-col gap-3 rounded-[1.25rem] border border-[#3a2b14] bg-[#17120d] p-4 md:flex-row md:items-center md:justify-between">
+                      <div key={match.external_match_id} className="flex flex-col gap-3 rounded-lg border border-[#ddd] bg-[#f6f7fa] p-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-1">
-                          <p className="font-semibold text-[#f7f0e2]">{match.home_team} {messages.versus} {match.away_team}</p>
-                          <p className="text-sm text-[#ccb992]">{match.competition_name}</p>
-                          <p className="text-xs text-[#f4bb41]">{messages.matchId}: {match.external_match_id}</p>
+                          <p className="font-semibold text-[#222]">{match.home_team} {messages.versus} {match.away_team}</p>
+                          <p className="text-sm text-[#626883]">{match.competition_name}</p>
+                          <p className="text-xs text-[#931800]">{messages.matchId}: {match.external_match_id}</p>
                         </div>
                         <Button
                           type="button"
@@ -135,3 +135,5 @@ export function StreamForm({
     </Card>
   );
 }
+
+

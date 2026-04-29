@@ -41,17 +41,19 @@ export function AdminLoginForm({ locale, messages }: { locale: Locale; messages:
       </div>
       <Card className="w-full space-y-6">
         <div className="space-y-2">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#f4bb41]">{messages.admin}</p>
-          <h1 className="text-3xl font-black text-[#f7f0e2]">{messages.loginTitle}</h1>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#931800]">{messages.admin}</p>
+          <h1 className="text-3xl font-semibold text-[#222]">{messages.loginTitle}</h1>
         </div>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <Input value={login} onChange={(event) => setLogin(event.target.value)} placeholder={messages.usernameOrEmail} required data-disable-global-redirect />
           <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder={messages.password} required type="password" data-disable-global-redirect />
-          {error ? <p className="text-sm text-[#f5d7c9]">{error}</p> : null}
-          {loading ? <p className="text-xs text-[#ccb992]">If the server is waking up on Render, login may take a few seconds.</p> : null}
+          {error ? <p className="text-sm text-[#931800]">{error}</p> : null}
+          {loading ? <p className="text-xs text-[#626883]">If the server is waking up on Render, login may take a few seconds.</p> : null}
           <Button className="w-full" disabled={loading} type="submit">{loading ? messages.loading : messages.login}</Button>
         </form>
       </Card>
     </div>
   );
 }
+
+

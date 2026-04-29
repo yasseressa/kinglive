@@ -124,25 +124,25 @@ export function StreamsPage({ locale, messages, initialMatchBuckets }: { locale:
       />
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#f4bb41]">{messages.admin}</p>
-        <h1 className="text-4xl font-black text-[#f7f0e2]">{messages.streamLinks}</h1>
-        <p className="mt-2 text-sm text-[#ccb992]">{messages.manageStreams}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#931800]">{messages.admin}</p>
+        <h1 className="text-4xl font-black text-[#222]">{messages.streamLinks}</h1>
+        <p className="mt-2 text-sm text-[#626883]">{messages.manageStreams}</p>
       </div>
 
-      {error ? <p className="text-sm text-[#f5d7c9]">{error}</p> : null}
+      {error ? <p className="text-sm text-[#931800]">{error}</p> : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-[#3a2b14] px-5 py-4">
-            <h2 className="text-2xl font-black text-[#f7f0e2]">{text.savedItems ?? messages.streamLinks}</h2>
+          <div className="flex items-center justify-between border-b border-[#ddd] px-5 py-4">
+            <h2 className="text-2xl font-black text-[#222]">{text.savedItems ?? messages.streamLinks}</h2>
             <Button variant="ghost" onClick={startCreate}>{messages.createNew}</Button>
           </div>
-          {loading ? <div className="p-6 text-[#f4bb41]">{messages.loading}</div> : null}
-          {!loading && items.length === 0 ? <div className="p-6 text-[#ccb992]">{text.noSavedItems ?? messages.noStreamsYet}</div> : null}
+          {loading ? <div className="p-6 text-[#931800]">{messages.loading}</div> : null}
+          {!loading && items.length === 0 ? <div className="p-6 text-[#626883]">{text.noSavedItems ?? messages.noStreamsYet}</div> : null}
           {!loading && items.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
-                <thead className="bg-[#120f0b] text-[#f4bb41]">
+                <thead className="bg-[#eceef2] text-[#931800]">
                   <tr>
                     <th className="px-4 py-3 text-left">{messages.matchId}</th>
                     <th className="px-4 py-3 text-left">{messages.streamType}</th>
@@ -152,14 +152,14 @@ export function StreamsPage({ locale, messages, initialMatchBuckets }: { locale:
                 </thead>
                 <tbody>
                   {items.map((item) => (
-                    <tr key={item.external_match_id} className="border-t border-[#3a2b14]">
-                      <td className="px-4 py-3 text-[#f7f0e2]">{item.external_match_id}</td>
-                      <td className="px-4 py-3 text-[#ccb992]">{streamTypeLabel(item.stream_type, messages)}</td>
-                      <td className="px-4 py-3 text-[#ccb992]">{item.show_stream ? messages.visible : messages.hidden}</td>
+                    <tr key={item.external_match_id} className="border-t border-[#ddd]">
+                      <td className="px-4 py-3 text-[#222]">{item.external_match_id}</td>
+                      <td className="px-4 py-3 text-[#626883]">{streamTypeLabel(item.stream_type, messages)}</td>
+                      <td className="px-4 py-3 text-[#626883]">{item.show_stream ? messages.visible : messages.hidden}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <Button variant="ghost" onClick={() => startEdit(item)}>{messages.edit}</Button>
-                          <button type="button" onClick={() => setDeleteTarget(item.external_match_id)} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#5a221a] bg-[#21110f] text-[#ff8c73] transition hover:bg-[#351512]" aria-label={text.delete ?? "Delete"}>
+                          <button type="button" onClick={() => setDeleteTarget(item.external_match_id)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#f0b4a8] bg-[#fff1ee] text-[#b42318] transition hover:bg-[#ffe1dc]" aria-label={text.delete ?? "Delete"}>
                             <TrashIcon />
                           </button>
                         </div>
@@ -174,7 +174,7 @@ export function StreamsPage({ locale, messages, initialMatchBuckets }: { locale:
 
         <Card className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-2xl font-black text-[#f7f0e2]">{editingId ? messages.editStream : messages.createStream}</h2>
+            <h2 className="text-2xl font-black text-[#222]">{editingId ? messages.editStream : messages.createStream}</h2>
             {editingId ? <Button variant="secondary" onClick={startCreate}>{messages.createNew}</Button> : null}
           </div>
           <Input value={form.external_match_id} onChange={(e) => setForm((current) => ({ ...current, external_match_id: e.target.value }))} placeholder={messages.externalMatchId} disabled={Boolean(editingId)} />
@@ -185,7 +185,7 @@ export function StreamsPage({ locale, messages, initialMatchBuckets }: { locale:
             <option value="embed">{messages.streamTypeEmbed}</option>
             <option value="hls">{messages.streamTypeHls}</option>
           </Select>
-          <label className="flex items-center gap-3 text-sm font-semibold text-[#f5efe3]">
+          <label className="flex items-center gap-3 text-sm font-semibold text-[#222]">
             <input type="checkbox" checked={form.show_stream} onChange={(e) => setForm((current) => ({ ...current, show_stream: e.target.checked }))} />
             {messages.showStream}
           </label>
@@ -194,13 +194,13 @@ export function StreamsPage({ locale, messages, initialMatchBuckets }: { locale:
           </Button>
 
           {availableMatches.length > 0 ? (
-            <div className="space-y-3 border-t border-[#3a2b14] pt-4">
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#f4bb41]">{messages.availableMatches}</p>
+            <div className="space-y-3 border-t border-[#ddd] pt-4">
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#931800]">{messages.availableMatches}</p>
               <div className="max-h-[18rem] space-y-2 overflow-auto">
                 {availableMatches.map((match) => (
-                  <button key={match.external_match_id} type="button" onClick={() => setForm((current) => ({ ...current, external_match_id: match.external_match_id }))} className="block w-full rounded-[1rem] border border-[#3a2b14] bg-[#17120d] px-3 py-3 text-left transition hover:border-[#f4bb41]">
-                    <p className="font-semibold text-[#f7f0e2]">{match.home_team} {messages.versus} {match.away_team}</p>
-                    <p className="text-xs text-[#f4bb41]">{messages.matchId}: {match.external_match_id}</p>
+                  <button key={match.external_match_id} type="button" onClick={() => setForm((current) => ({ ...current, external_match_id: match.external_match_id }))} className="block w-full rounded-lg border border-[#ddd] bg-[#f6f7fa] px-3 py-3 text-left transition hover:border-[#931800]">
+                    <p className="font-semibold text-[#222]">{match.home_team} {messages.versus} {match.away_team}</p>
+                    <p className="text-xs text-[#931800]">{messages.matchId}: {match.external_match_id}</p>
                   </button>
                 ))}
               </div>
@@ -229,3 +229,5 @@ function TrashIcon() {
     </svg>
   );
 }
+
+

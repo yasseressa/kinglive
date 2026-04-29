@@ -104,22 +104,22 @@ export function SocialLinksManager({ locale: _locale, messages }: { locale: Loca
       />
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#f4bb41]">{messages.admin}</p>
-        <h1 className="text-4xl font-black text-[#f7f0e2]">{messages.socialLinks}</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#931800]">{messages.admin}</p>
+        <h1 className="text-4xl font-black text-[#222]">{messages.socialLinks}</h1>
       </div>
-      {error ? <p className="text-sm text-[#f5d7c9]">{error}</p> : null}
+      {error ? <p className="text-sm text-[#931800]">{error}</p> : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <Card className="overflow-hidden p-0">
-          <div className="flex items-center justify-between border-b border-[#3a2b14] px-5 py-4">
-            <h2 className="text-2xl font-black text-[#f7f0e2]">{text.savedItems ?? messages.socialLinks}</h2>
+          <div className="flex items-center justify-between border-b border-[#ddd] px-5 py-4">
+            <h2 className="text-2xl font-black text-[#222]">{text.savedItems ?? messages.socialLinks}</h2>
             <Button variant="ghost" onClick={resetForm}>{messages.createNew}</Button>
           </div>
-          {rows.length === 0 ? <div className="p-6 text-[#ccb992]">{text.noSavedItems ?? messages.manageSocialLinks}</div> : null}
+          {rows.length === 0 ? <div className="p-6 text-[#626883]">{text.noSavedItems ?? messages.manageSocialLinks}</div> : null}
           {rows.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
-                <thead className="bg-[#120f0b] text-[#f4bb41]">
+                <thead className="bg-[#eceef2] text-[#931800]">
                   <tr>
                     <th className="px-4 py-3 text-left">{text.platform ?? "Platform"}</th>
                     <th className="px-4 py-3 text-left">{messages.targetUrl}</th>
@@ -128,13 +128,13 @@ export function SocialLinksManager({ locale: _locale, messages }: { locale: Loca
                 </thead>
                 <tbody>
                   {rows.map((row) => (
-                    <tr key={row.key} className="border-t border-[#3a2b14]">
-                      <td className="px-4 py-3 text-[#f7f0e2]">{row.label}</td>
-                      <td className="px-4 py-3 text-[#ccb992]">{row.value}</td>
+                    <tr key={row.key} className="border-t border-[#ddd]">
+                      <td className="px-4 py-3 text-[#222]">{row.label}</td>
+                      <td className="px-4 py-3 text-[#626883]">{row.value}</td>
                       <td className="px-4 py-3">
                         <div className="flex gap-2">
                           <Button variant="ghost" onClick={() => startEdit(row.key, row.value ?? "")}>{messages.edit}</Button>
-                          <button type="button" onClick={() => setDeleteTarget(row.key)} className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#5a221a] bg-[#21110f] text-[#ff8c73] transition hover:bg-[#351512]" aria-label={text.delete ?? "Delete"}>
+                          <button type="button" onClick={() => setDeleteTarget(row.key)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#f0b4a8] bg-[#fff1ee] text-[#b42318] transition hover:bg-[#ffe1dc]" aria-label={text.delete ?? "Delete"}>
                             <TrashIcon />
                           </button>
                         </div>
@@ -149,10 +149,10 @@ export function SocialLinksManager({ locale: _locale, messages }: { locale: Loca
 
         <Card className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-2xl font-black text-[#f7f0e2]">{editingKey ? messages.edit : messages.socialLinks}</h2>
+            <h2 className="text-2xl font-black text-[#222]">{editingKey ? messages.edit : messages.socialLinks}</h2>
             {editingKey ? <Button variant="secondary" onClick={resetForm}>{messages.createNew}</Button> : null}
           </div>
-          <p className="text-sm text-[#ccb992]">{messages.manageSocialLinks}</p>
+          <p className="text-sm text-[#626883]">{messages.manageSocialLinks}</p>
           <Select value={selectedKey} onChange={(e) => setSelectedKey(e.target.value as SocialKey)} disabled={Boolean(editingKey)}>
             {socialOptions.map((option) => (
               <option key={option.key} value={option.key}>{text[option.messageKey] ?? option.messageKey}</option>
@@ -178,3 +178,5 @@ function TrashIcon() {
     </svg>
   );
 }
+
+

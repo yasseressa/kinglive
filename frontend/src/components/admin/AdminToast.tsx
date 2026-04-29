@@ -11,12 +11,12 @@ export function AdminToast({ message, tone = "success", onClose }: AdminToastPro
 
   const toneClass =
     tone === "success"
-      ? "border-emerald-500/30 bg-emerald-500/12 text-emerald-100"
-      : "border-rose-500/30 bg-rose-500/12 text-rose-100";
+      ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+      : "border-rose-200 bg-rose-50 text-rose-800";
 
   return (
     <div className="fixed inset-x-4 top-4 z-[80] flex justify-center">
-      <div className={`flex w-full max-w-md items-center justify-between gap-3 rounded-[1.2rem] border px-4 py-3 shadow-[0_16px_45px_rgba(0,0,0,0.35)] backdrop-blur ${toneClass}`}>
+      <div className={`flex w-full max-w-md items-center justify-between gap-3 rounded-lg border px-4 py-3 shadow-[0_16px_45px_rgba(0,0,0,0.18)] ${toneClass}`}>
         <p className="text-sm font-semibold">{message}</p>
         <button type="button" onClick={onClose} className="text-xs font-bold uppercase tracking-[0.14em] opacity-80 transition hover:opacity-100">
           Close
@@ -25,3 +25,5 @@ export function AdminToast({ message, tone = "success", onClose }: AdminToastPro
     </div>
   );
 }
+
+

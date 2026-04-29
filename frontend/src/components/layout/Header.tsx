@@ -6,9 +6,7 @@ import type { Locale, Messages } from "@/i18n";
 
 export function Header({ locale, messages }: { locale: Locale; messages: Messages }) {
   const navLinks = [
-    { href: `/${locale}/matches`, label: messages.matches },
-    { href: `/${locale}#news`, label: messages.sportsNews },
-    { href: `/${locale}/contact`, label: messages.contactUs },
+    { href: `/${locale}`, label: messages.home },
   ];
 
   return (
