@@ -96,7 +96,7 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
       <section id="news" className="overflow-hidden rounded-lg bg-white shadow-[0_0_4px_rgba(0,0,0,0.3)]">
         <div className="flex items-center justify-between border-b border-[#ddd] bg-[#eceef2] p-2 sm:p-3">
           <h2 className="inline-flex items-center justify-center rounded-lg bg-[#273340] px-3 py-1.5 text-sm font-semibold text-white sm:text-base">
-            {locale === "ar" ? "يلا شوت بث مباشر" : messages.sportsNews}
+            {locale === "ar" ? "الأخبار" : messages.sportsNews}
           </h2>
         </div>
 
