@@ -17,7 +17,11 @@ services:
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
-      - key: FOOTBALL_DATA_API_KEY
+      - key: SPORTS_PROVIDER
+        value: sportmonks
+      - key: SPORTMONKS_BASE_URL
+        value: https://api.sportmonks.com/v3/football
+      - key: SPORTMONKS_API_TOKEN
         sync: false
       - key: GNEWS_API_KEY
         sync: false
