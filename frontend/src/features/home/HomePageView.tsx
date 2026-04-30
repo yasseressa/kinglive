@@ -36,12 +36,19 @@ export function HomePageView({ locale, messages, data }: { locale: Locale; messa
 
   const buckets = [
     { id: "today", label: messages.todayMatches, matches: groupedMatches.today },
-    { id: "yesterday", label: messages.yesterdayMatches, matches: groupedMatches.yesterday },
     { id: "tomorrow", label: messages.tomorrowMatches, matches: groupedMatches.tomorrow },
+    { id: "yesterday", label: messages.yesterdayMatches, matches: groupedMatches.yesterday },
   ] as const;
 
-  const [activeBucketId, setActiveBucketId] = useState<(typeof buckets)[number]["id"]>("today");
+  const preferredBucketId = buckets.find((bucket) => bucket.matches.length > 0)?.id ?? "today";
+  const [activeBucketId, setActiveBucketId] = useState<(typeof buckets)[number]["id"]>(preferredBucketId);
   const activeBucket = buckets.find((bucket) => bucket.id === activeBucketId) ?? buckets[0];
+
+  useEffect(() => {
+    if (activeBucket.matches.length === 0 && preferredBucketId !== activeBucket.id) {
+      setActiveBucketId(preferredBucketId);
+    }
+  }, [activeBucket.id, activeBucket.matches.length, preferredBucketId]);
 
   return (
     <div className="space-y-5 pb-8">
@@ -141,9 +148,9 @@ function FeatureMatchRow({ locale, match, messages, now }: { locale: Locale; mat
         <div className="mx-auto flex min-w-[84px] flex-col items-center text-center">
           <span className="text-sm font-semibold sm:text-base">{formatMatchTime(match.start_time, locale)}</span>
           <span className="mt-1 hidden text-lg font-semibold sm:inline-flex">
-            <span>0</span>
+            <span>{match.home_score ?? 0}</span>
             <span className="mx-1">-</span>
-            <span>0</span>
+            <span>{match.away_score ?? 0}</span>
           </span>
           <span className={`mt-1 inline-flex min-h-[25px] min-w-[62px] items-center justify-center rounded-lg px-2 py-1 text-[11px] font-semibold text-white sm:text-xs ${statClass}`}>
             {statusText(displayStatus, messages)}

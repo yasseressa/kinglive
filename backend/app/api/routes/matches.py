@@ -49,6 +49,8 @@ def _to_match_summary_response(match) -> MatchSummaryResponse:
         away_team=match.away_team,
         start_time=match.start_time,
         status=match.status,
+        home_score=match.home_score,
+        away_score=match.away_score,
         home_team_crest=match.home_team_crest,
         away_team_crest=match.away_team_crest,
         competition_emblem=match.competition_emblem,

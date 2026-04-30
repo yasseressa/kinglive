@@ -12,6 +12,8 @@ class MatchData:
     away_team: str
     start_time: datetime
     status: str
+    home_score: int | None = None
+    away_score: int | None = None
     venue: str | None = None
     description: str | None = None
     home_team_crest: str | None = None

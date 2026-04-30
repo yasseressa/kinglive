@@ -18,10 +18,12 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: SPORTS_PROVIDER
-        value: sportmonks
-      - key: SPORTMONKS_BASE_URL
-        value: https://api.sportmonks.com/v3/football
-      - key: SPORTMONKS_API_TOKEN
+        value: rapidapi
+      - key: FOOTBALL_DATA_BASE_URL
+        value: https://free-api-live-football-data.p.rapidapi.com
+      - key: FOOTBALL_DATA_RAPIDAPI_HOST
+        value: free-api-live-football-data.p.rapidapi.com
+      - key: FOOTBALL_DATA_API_KEY
         sync: false
       - key: GNEWS_API_KEY
         sync: false

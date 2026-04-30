@@ -23,9 +23,10 @@ class Settings(BaseSettings):
 
     log_level: str = "INFO"
     log_json: bool = False
-    sports_provider: str = "sportmonks"
+    sports_provider: str = "rapidapi"
     news_provider: str = "gnews"
-    football_data_base_url: str = "https://api.football-data.org/v4"
+    football_data_base_url: str = "https://free-api-live-football-data.p.rapidapi.com"
+    football_data_rapidapi_host: str = "free-api-live-football-data.p.rapidapi.com"
     football_data_api_key: str = ""
     football_data_competitions: str = "PL,CL,SA,PD,BL1,FL1"
     football_data_timezone: str = "Asia/Riyadh"

@@ -10,6 +10,6 @@ from app.integrations.sports.sportmonks import SportmonksSportsAPIClient
 
 @lru_cache
 def get_sports_client() -> SportsAPIClient:
-    if settings.sports_provider.lower() == "football_data":
+    if settings.sports_provider.lower() in {"football_data", "rapidapi"}:
         return FootballDataSportsAPIClient()
     return SportmonksSportsAPIClient()

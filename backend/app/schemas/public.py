@@ -12,6 +12,8 @@ class MatchSummaryResponse(BaseModel):
     away_team: str
     start_time: datetime
     status: str
+    home_score: int | None = None
+    away_score: int | None = None
     home_team_crest: HttpUrl | None = None
     away_team_crest: HttpUrl | None = None
     competition_emblem: HttpUrl | None = None

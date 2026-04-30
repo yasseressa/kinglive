@@ -7,6 +7,8 @@ export interface MatchSummary {
   away_team: string;
   start_time: string;
   status: string;
+  home_score?: number | null;
+  away_score?: number | null;
   home_team_crest?: string | null;
   away_team_crest?: string | null;
   competition_emblem?: string | null;
