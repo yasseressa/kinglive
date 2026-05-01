@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import csv
 import re
+from functools import lru_cache
+from pathlib import Path
 
 ARABIC_TRANSLATIONS = {
     "Premier League": "الدوري الإنجليزي الممتاز",
@@ -118,7 +121,14 @@ _CHAR_MAP = {
 
 
 def localize_sports_text(value: str | None, locale: str) -> str | None:
-    if value is None or locale != "ar":
+    if value is None:
+        return value
+
+    csv_translation = _lookup_csv_translation(value, locale)
+    if csv_translation:
+        return csv_translation
+
+    if locale != "ar":
         return value
 
     direct = ARABIC_TRANSLATIONS.get(value)
@@ -147,3 +157,54 @@ def _transliterate_latin_to_arabic(word: str) -> str:
             continue
         letters.append(_CHAR_MAP.get(char, char))
     return "".join(letters)
+
+
+def _lookup_csv_translation(value: str, locale: str) -> str | None:
+    translations = _load_csv_translations()
+    locale_translations = translations.get(locale)
+    if not locale_translations:
+        return None
+    return locale_translations.get(_normalize_lookup_key(value))
+
+
+@lru_cache
+def _load_csv_translations() -> dict[str, dict[str, str]]:
+    path = _translation_csv_path()
+    if not path.exists():
+        return {}
+
+    translations: dict[str, dict[str, str]] = {"ar": {}, "en": {}, "fr": {}, "es": {}}
+    with path.open(encoding="utf-8-sig", newline="") as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            english_name = _clean_csv_value(row.get("الاسم الإنجليزي"))
+            if not english_name:
+                continue
+
+            lookup_key = _normalize_lookup_key(english_name)
+            for locale, column_name in (
+                ("ar", "الاسم العربي"),
+                ("en", "الاسم الإنجليزي"),
+                ("fr", "الاسم الفرنسي"),
+                ("es", "الاسم الإسباني"),
+            ):
+                translated = _clean_csv_value(row.get(column_name))
+                if translated:
+                    translations[locale][lookup_key] = translated
+
+    return translations
+
+
+def _translation_csv_path() -> Path:
+    return Path(__file__).resolve().parents[3] / "leagues_and_teams.csv"
+
+
+def _normalize_lookup_key(value: str) -> str:
+    return " ".join(value.casefold().replace("-", " ").split())
+
+
+def _clean_csv_value(value: str | None) -> str | None:
+    if value is None:
+        return None
+    cleaned = value.strip()
+    return cleaned or None
