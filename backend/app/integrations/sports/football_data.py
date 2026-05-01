@@ -22,33 +22,25 @@ _LIVE_STATUSES = {"1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT", "LIVE"}
 _FINISHED_STATUSES = {"FT", "AET", "PEN"}
 _POSTPONED_STATUSES = {"PST", "TBD"}
 _CANCELLED_STATUSES = {"CANC", "ABD", "AWD", "WO"}
-_ALLOWED_LEAGUE_NAMES = {
-    "fifa world cup",
-    "world cup",
-    "uefa champions league",
-    "champions league",
-    "bundesliga",
-    "eredivisie",
-    "laliga",
-    "la liga",
-    "primera division",
-    "premier league",
-    "ligue 1",
-    "serie a",
-    "liga portugal",
-    "primeira liga",
-    "saudi pro league",
-    "pro league",
-    "caf champions league",
-    "africa cup of champions clubs",
-    "european championship",
-    "euro championship",
-    "uefa euro",
-    "uefa europa league",
-    "europa league",
-    "uefa conference league",
-    "europa conference league",
-    "uefa europa conference league",
+_ALLOWED_LEAGUE_FILTERS = {
+    ("england", "premier league"),
+    ("france", "ligue 1"),
+    ("spain", "la liga"),
+    ("italy", "serie a"),
+    ("portugal", "primeira liga"),
+    ("netherlands", "eredivisie"),
+    ("saudi arabia", "pro league"),
+    ("world", "fifa world cup"),
+    ("world", "uefa europa league"),
+    ("world", "uefa europa conference league"),
+    ("world", "uefa conference league"),
+    ("world", "uefa champions league"),
+    ("world", "caf champions league"),
+    ("world", "european championship"),
+    ("world", "euro championship"),
+    ("uefa europa league", "world"),
+    ("uefa europa conference league", "world"),
+    ("uefa champions league", "world"),
 }
 
 
@@ -191,13 +183,14 @@ def _extract_fixtures(payload: dict | list) -> list[dict]:
 
 def _is_allowed_league(payload: dict) -> bool:
     league = payload.get("league") or {}
+    country = league.get("country")
     league_name = league.get("name")
-    if not isinstance(league_name, str):
+    if not isinstance(country, str) or not isinstance(league_name, str):
         return False
-    return _normalize_league_name(league_name) in _ALLOWED_LEAGUE_NAMES
+    return (_normalize_filter_value(country), _normalize_filter_value(league_name)) in _ALLOWED_LEAGUE_FILTERS
 
 
-def _normalize_league_name(value: str) -> str:
+def _normalize_filter_value(value: str) -> str:
     return " ".join(value.casefold().replace("-", " ").split())
 
 

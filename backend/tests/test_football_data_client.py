@@ -38,7 +38,9 @@ def test_football_data_maps_api_sports_fixture_to_match_data():
 
 
 def test_football_data_filters_allowed_leagues():
-    assert _is_allowed_league({"league": {"name": "UEFA Champions League"}})
-    assert _is_allowed_league({"league": {"name": "La Liga"}})
-    assert _is_allowed_league({"league": {"name": "Euro Championship"}})
-    assert not _is_allowed_league({"league": {"name": "Primera B"}})
+    assert _is_allowed_league({"league": {"country": "World", "name": "UEFA Champions League"}})
+    assert _is_allowed_league({"league": {"country": "Spain", "name": "La Liga"}})
+    assert _is_allowed_league({"league": {"country": "Saudi-Arabia", "name": "Pro League"}})
+    assert _is_allowed_league({"league": {"country": "UEFA Europa League", "name": "World"}})
+    assert not _is_allowed_league({"league": {"country": "Chile", "name": "Primera B"}})
+    assert not _is_allowed_league({"league": {"country": "Belgium", "name": "Pro League"}})
