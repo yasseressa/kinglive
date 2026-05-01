@@ -22,6 +22,34 @@ _LIVE_STATUSES = {"1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT", "LIVE"}
 _FINISHED_STATUSES = {"FT", "AET", "PEN"}
 _POSTPONED_STATUSES = {"PST", "TBD"}
 _CANCELLED_STATUSES = {"CANC", "ABD", "AWD", "WO"}
+_ALLOWED_LEAGUE_NAMES = {
+    "fifa world cup",
+    "world cup",
+    "uefa champions league",
+    "champions league",
+    "bundesliga",
+    "eredivisie",
+    "laliga",
+    "la liga",
+    "primera division",
+    "premier league",
+    "ligue 1",
+    "serie a",
+    "liga portugal",
+    "primeira liga",
+    "saudi pro league",
+    "pro league",
+    "caf champions league",
+    "africa cup of champions clubs",
+    "european championship",
+    "euro championship",
+    "uefa euro",
+    "uefa europa league",
+    "europa league",
+    "uefa conference league",
+    "europa conference league",
+    "uefa europa conference league",
+}
 
 
 @dataclass(slots=True)
@@ -53,7 +81,11 @@ class FootballDataSportsAPIClient(SportsAPIClient):
         if not fixtures:
             return []
 
-        matches = [self._map_match(fixture_payload, locale) for fixture_payload in fixtures]
+        matches = [
+            self._map_match(fixture_payload, locale)
+            for fixture_payload in fixtures
+            if _is_allowed_league(fixture_payload)
+        ]
         unique_matches = {match.external_match_id: match for match in matches}
         return sorted(unique_matches.values(), key=lambda item: item.start_time)
 
@@ -155,6 +187,18 @@ def _extract_fixtures(payload: dict | list) -> list[dict]:
         return [item for item in fixtures if isinstance(item, dict)]
 
     return []
+
+
+def _is_allowed_league(payload: dict) -> bool:
+    league = payload.get("league") or {}
+    league_name = league.get("name")
+    if not isinstance(league_name, str):
+        return False
+    return _normalize_league_name(league_name) in _ALLOWED_LEAGUE_NAMES
+
+
+def _normalize_league_name(value: str) -> str:
+    return " ".join(value.casefold().replace("-", " ").split())
 
 
 def _parse_datetime(fixture: dict) -> datetime:

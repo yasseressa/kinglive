@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from app.integrations.sports.football_data import FootballDataSportsAPIClient
+from app.integrations.sports.football_data import FootballDataSportsAPIClient, _is_allowed_league
 
 
 def test_football_data_maps_api_sports_fixture_to_match_data():
@@ -35,3 +35,10 @@ def test_football_data_maps_api_sports_fixture_to_match_data():
     assert match.home_team_crest == "https://media.api-sports.io/football/teams/9906.png"
     assert match.away_team_crest == "https://media.api-sports.io/football/teams/9825.png"
     assert match.competition_emblem == "https://media.api-sports.io/football/leagues/2.png"
+
+
+def test_football_data_filters_allowed_leagues():
+    assert _is_allowed_league({"league": {"name": "UEFA Champions League"}})
+    assert _is_allowed_league({"league": {"name": "La Liga"}})
+    assert _is_allowed_league({"league": {"name": "Euro Championship"}})
+    assert not _is_allowed_league({"league": {"name": "Primera B"}})
