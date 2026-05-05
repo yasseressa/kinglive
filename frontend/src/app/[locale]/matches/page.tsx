@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { MatchesPageView } from "@/features/matches/MatchesPageView";
 import { getMessages, isLocale } from "@/i18n";
@@ -15,6 +16,8 @@ const emptyHomePageData: HomeResponse = {
 };
 
 export default async function MatchesPage({ params }: { params: Promise<{ locale: string }> }) {
+  await connection();
+
   const { locale } = await params;
   if (!isLocale(locale)) {
     notFound();

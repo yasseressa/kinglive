@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 
 import { HomePageView } from "@/features/home/HomePageView";
 import { getMessages, isLocale } from "@/i18n";
@@ -15,6 +16,8 @@ const emptyHomePageData: HomeResponse = {
 };
 
 export default async function LocaleHomePage({ params }: { params: Promise<{ locale: string }> }) {
+  await connection();
+
   const { locale } = await params;
   if (!isLocale(locale)) {
     notFound();
