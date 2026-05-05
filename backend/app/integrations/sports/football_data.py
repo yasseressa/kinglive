@@ -31,7 +31,7 @@ _ALLOWED_LEAGUE_FILTERS = {
     ("portugal", "primeira liga"),
     ("netherlands", "eredivisie"),
     ("saudi arabia", "pro league"),
-    ("Egypt", "Premier League"),
+    ("egypt", "premier league"),
     ("world", "fifa world cup"),
     ("world", "uefa europa league"),
     ("world", "uefa europa conference league"),
