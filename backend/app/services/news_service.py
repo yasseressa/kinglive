@@ -33,6 +33,10 @@ class NewsService:
             logger.warning("latest_news_using_stale_cache", extra={"locale": locale, "count": len(stale_cached)})
             return stale_cached
 
+        if not articles:
+            logger.warning("latest_news_empty_not_cached", extra={"locale": locale})
+            return articles
+
         self.cache.set(cache_key, articles, HOME_NEWS_CACHE_TTL_SECONDS)
         logger.info("latest_news_loaded", extra={"locale": locale, "count": len(articles)})
         return articles
@@ -67,6 +71,10 @@ class NewsService:
                 extra={"match_id": match_id, "locale": locale, "count": len(stale_cached)},
             )
             return stale_cached
+
+        if not articles:
+            logger.warning("related_news_empty_not_cached", extra={"match_id": match_id, "locale": locale})
+            return articles
 
         self.cache.set(cache_key, articles, RELATED_MATCH_NEWS_CACHE_TTL_SECONDS)
         logger.info("related_news_loaded", extra={"match_id": match_id, "locale": locale, "count": len(articles)})

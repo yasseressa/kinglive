@@ -117,7 +117,13 @@ class FootballDataSportsAPIClient(SportsAPIClient):
             stale = self._get_cached_fixtures(cache_key, allow_stale=True)
             return stale or []
 
-        self._set_cached_fixtures(cache_key, fixtures)
+        if fixtures:
+            self._set_cached_fixtures(cache_key, fixtures)
+        else:
+            logger.warning(
+                "sports_api_empty_fixtures_not_cached",
+                extra={"provider": _PROVIDER_NAME, "date": cache_key},
+            )
         return fixtures
 
     def _get_cached_fixtures(self, cache_key: str, allow_stale: bool = False) -> list[dict] | None:
