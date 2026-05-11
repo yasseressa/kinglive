@@ -26,7 +26,7 @@ _ALLOWED_LEAGUE_FILTERS = {
     ("england", "premier league"),
     ("france", "ligue 1"),
     ("spain", "la liga"),
-    ("Germany", "Bundesliga"),
+    ("germany", "bundesliga"),
     ("italy", "serie a"),
     ("portugal", "primeira liga"),
     ("netherlands", "eredivisie"),
