@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
+import { BottomImagePopup } from "@/components/layout/BottomImagePopup";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import type { Locale, Messages } from "@/i18n";
@@ -29,6 +30,7 @@ export function LocalePageShell({
         {children}
       </main>
       <Footer locale={locale} messages={messages} />
+      <BottomImagePopup />
     </div>
   );
 }
