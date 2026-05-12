@@ -24,6 +24,8 @@ export function Header({ locale, messages }: { locale: Locale; messages: Message
               <Link
                 key={link.href}
                 href={link.href}
+                target={link.href.endsWith("/contact") ? "_blank" : undefined}
+                rel={link.href.endsWith("/contact") ? "noreferrer" : undefined}
                 className="block rounded-lg px-2.5 py-2 text-[15px] font-semibold text-[#222] transition hover:text-[#931800] sm:text-[17px]"
                 data-disable-global-redirect
               >

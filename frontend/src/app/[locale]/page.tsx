@@ -5,7 +5,8 @@ import { getMessages, isLocale } from "@/i18n";
 import { getHomePageData } from "@/lib/api";
 import type { HomeResponse } from "@/lib/api/types";
 
-export const revalidate = 1800;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const emptyHomePageData: HomeResponse = {
   yesterday_matches: [],

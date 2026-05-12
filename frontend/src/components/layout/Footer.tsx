@@ -13,7 +13,7 @@ export function Footer({ locale, messages }: { locale: Locale; messages: Message
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 text-sm font-semibold text-[#484848] md:justify-end">
           <Link href={`/${locale}`} className="rounded-lg px-2 py-1 transition hover:text-[#931800]" data-disable-global-redirect>{messages.home}</Link>
-          <Link href={`/${locale}/contact`} className="rounded-lg px-2 py-1 transition hover:text-[#931800]" data-disable-global-redirect>{messages.contactUs}</Link>
+          <Link href={`/${locale}/contact`} target="_blank" rel="noreferrer" className="rounded-lg px-2 py-1 transition hover:text-[#931800]" data-disable-global-redirect>{messages.contactUs}</Link>
         </div>
       </div>
       <div className="bg-[#eceef2]">
