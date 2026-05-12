@@ -92,3 +92,19 @@ async def test_football_data_treats_api_sports_errors_as_failed_request(monkeypa
     client = FootballDataSportsAPIClient()
 
     assert await client._fetch_fixtures(date(2026, 5, 10), log_context={}) is None
+
+
+def test_football_data_file_cache_is_bound_to_refresh_slot(tmp_path, monkeypatch):
+    monkeypatch.setattr(football_data, "sports_refresh_slot_key", lambda: "2026-05-13T00:00:00+03:00")
+    client = FootballDataSportsAPIClient()
+    client.fixture_cache_path = tmp_path / "football_fixtures_cache.json"
+    payload = {"response": [{"fixture": {"id": 1}}]}
+
+    client._set_cached_provider_payload("2026-05-13", payload)
+
+    assert client._get_cached_provider_payload("2026-05-13") == payload
+
+    monkeypatch.setattr(football_data, "sports_refresh_slot_key", lambda: "2026-05-13T12:00:00+03:00")
+
+    assert client._get_cached_provider_payload("2026-05-13") is None
+    assert client._get_cached_provider_payload("2026-05-13", allow_stale=True) == payload

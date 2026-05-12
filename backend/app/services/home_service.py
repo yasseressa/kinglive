@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from app.core.cache import CacheBackend, CacheKeys
 from app.core.constants import HOME_MATCHES_CACHE_TTL_SECONDS
-from app.core.time import current_sports_date
+from app.core.time import current_sports_date, seconds_until_next_sports_refresh, sports_refresh_slot_key
 from app.integrations.shared_models import MatchData, NewsArticleData
 from app.integrations.sports.client import SportsAPIClient
 from app.services.news_service import NewsService
@@ -35,14 +35,14 @@ class HomeService:
         }
 
     async def _get_matches_for_bucket(self, target_date, locale: str, bucket: str) -> list[MatchData]:
-        cache_key = CacheKeys.home_matches(locale, bucket, target_date.isoformat())
+        cache_key = CacheKeys.home_matches(locale, bucket, f"{target_date.isoformat()}:{sports_refresh_slot_key()}")
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
 
         matches = await self.sports_client.get_matches_for_date(target_date, locale)
         if matches:
-            self.cache.set(cache_key, matches, HOME_MATCHES_CACHE_TTL_SECONDS)
+            self.cache.set(cache_key, matches, min(HOME_MATCHES_CACHE_TTL_SECONDS, seconds_until_next_sports_refresh()))
         else:
             logger.warning(
                 "home_matches_empty_not_cached",

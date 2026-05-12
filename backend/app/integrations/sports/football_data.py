@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import logging
+import json
+import os
 from collections import Counter
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
+from pathlib import Path
 from threading import RLock
 
 import httpx
 
-from app.core.constants import HOME_MATCHES_CACHE_TTL_SECONDS
 from app.core.config import settings
-from app.core.time import is_on_sports_date, provider_dates_for_sports_date
+from app.core.time import is_on_sports_date, provider_dates_for_sports_date, sports_refresh_slot_key
 from app.integrations.shared_models import MatchData
 from app.integrations.sports.client import SportsAPIClient
 from app.integrations.sports.localization import localize_sports_text
@@ -54,7 +56,12 @@ _ALLOWED_LEAGUE_FILTERS = {
 @dataclass(slots=True)
 class _CachedFixtures:
     fixtures: list[dict]
-    expires_at: datetime
+    refresh_slot: str
+
+
+_DEFAULT_FIXTURE_CACHE_PATH = Path(__file__).resolve().parents[3] / "data" / "football_fixtures_cache.json"
+_FIXTURE_CACHE_VERSION = 1
+_FIXTURE_CACHE_MAX_AGE_DAYS = 4
 
 
 class FootballDataSportsAPIClient(SportsAPIClient):
@@ -67,6 +74,7 @@ class FootballDataSportsAPIClient(SportsAPIClient):
         }
         self._fixtures_cache: dict[str, _CachedFixtures] = {}
         self._cache_lock = RLock()
+        self.fixture_cache_path = _fixture_cache_path()
 
     async def get_matches_for_date(self, target_date: date, locale: str) -> list[MatchData]:
         if not self.enabled:
@@ -153,25 +161,28 @@ class FootballDataSportsAPIClient(SportsAPIClient):
         return fixtures
 
     def _get_cached_fixtures(self, cache_key: str, allow_stale: bool = False) -> list[dict] | None:
-        now = datetime.now(UTC)
+        refresh_slot = sports_refresh_slot_key()
         with self._cache_lock:
             entry = self._fixtures_cache.get(cache_key)
             if entry is None:
                 return None
-            if not allow_stale and entry.expires_at <= now:
+            if not allow_stale and entry.refresh_slot != refresh_slot:
                 return None
             return entry.fixtures
 
     def _set_cached_fixtures(self, cache_key: str, fixtures: list[dict]) -> None:
-        expires_at = datetime.now(UTC) + timedelta(seconds=HOME_MATCHES_CACHE_TTL_SECONDS)
         with self._cache_lock:
             self._fixtures_cache[cache_key] = _CachedFixtures(
                 fixtures=fixtures,
-                expires_at=expires_at,
+                refresh_slot=sports_refresh_slot_key(),
             )
 
     async def _fetch_fixtures(self, target_date: date, log_context: dict) -> dict | None:
         request_date = target_date.isoformat()
+        cached_payload = self._get_cached_provider_payload(request_date)
+        if cached_payload is not None:
+            return cached_payload
+
         try:
             async with httpx.AsyncClient(base_url=self.base_url, headers=self.headers, timeout=20.0) as client:
                 response = await client.get(
@@ -193,13 +204,68 @@ class FootballDataSportsAPIClient(SportsAPIClient):
                     "sports_api_response_loaded",
                     extra={"provider": _PROVIDER_NAME, "date": request_date, "results": results},
                 )
+                self._set_cached_provider_payload(request_date, payload)
             return payload
         except httpx.HTTPError:
             logger.exception(
                 "sports_api_request_failed",
                 extra={"provider": _PROVIDER_NAME, "path": _FIXTURES_PATH, "date": request_date, **log_context},
             )
+            return self._get_cached_provider_payload(request_date, allow_stale=True)
+
+    def _get_cached_provider_payload(self, request_date: str, allow_stale: bool = False) -> dict | None:
+        with self._cache_lock:
+            cache = self._read_fixture_cache()
+            entry = _fixture_cache_entry(cache, request_date)
+            if entry is None:
+                return None
+            if not allow_stale and entry.get("refresh_slot") != sports_refresh_slot_key():
+                return None
+            payload = entry.get("payload")
+            if isinstance(payload, dict):
+                logger.info(
+                    "sports_api_file_cache_hit",
+                    extra={"provider": _PROVIDER_NAME, "date": request_date, "allow_stale": allow_stale},
+                )
+                return payload
             return None
+
+    def _set_cached_provider_payload(self, request_date: str, payload: dict) -> None:
+        with self._cache_lock:
+            cache = self._read_fixture_cache()
+            entries = cache.setdefault("entries", {})
+            entries[request_date] = {
+                "refresh_slot": sports_refresh_slot_key(),
+                "updated_at": datetime.now(UTC).isoformat(),
+                "payload": payload,
+            }
+            _prune_fixture_cache_entries(entries)
+            self._write_fixture_cache(cache)
+            logger.info("sports_api_file_cache_set", extra={"provider": _PROVIDER_NAME, "date": request_date})
+
+    def _read_fixture_cache(self) -> dict:
+        try:
+            with self.fixture_cache_path.open("r", encoding="utf-8") as cache_file:
+                cache = json.load(cache_file)
+        except FileNotFoundError:
+            return _empty_fixture_cache()
+        except (OSError, json.JSONDecodeError):
+            logger.exception("sports_api_file_cache_read_failed", extra={"path": str(self.fixture_cache_path)})
+            return _empty_fixture_cache()
+
+        if not isinstance(cache, dict) or not isinstance(cache.get("entries"), dict):
+            return _empty_fixture_cache()
+        return cache
+
+    def _write_fixture_cache(self, cache: dict) -> None:
+        try:
+            self.fixture_cache_path.parent.mkdir(parents=True, exist_ok=True)
+            tmp_path = self.fixture_cache_path.with_suffix(f"{self.fixture_cache_path.suffix}.tmp")
+            with tmp_path.open("w", encoding="utf-8") as cache_file:
+                json.dump(cache, cache_file, ensure_ascii=False, separators=(",", ":"))
+            os.replace(tmp_path, self.fixture_cache_path)
+        except OSError:
+            logger.exception("sports_api_file_cache_write_failed", extra={"path": str(self.fixture_cache_path)})
 
     def _map_match(self, payload: dict, locale: str) -> MatchData:
         fixture = payload.get("fixture") or {}
@@ -208,9 +274,9 @@ class FootballDataSportsAPIClient(SportsAPIClient):
         home_team = teams.get("home") or {}
         away_team = teams.get("away") or {}
         goals = payload.get("goals") or {}
-        home_name = localize_sports_text(_pick_team_name(home_team) or "Unknown home team", locale) or "Unknown home team"
-        away_name = localize_sports_text(_pick_team_name(away_team) or "Unknown away team", locale) or "Unknown away team"
-        competition_name = localize_sports_text(league.get("name") or "Football", locale) or "Football"
+        home_name = localize_sports_text(_pick_team_name(home_team) or "Unknown home team", locale, entity_type="team") or "Unknown home team"
+        away_name = localize_sports_text(_pick_team_name(away_team) or "Unknown away team", locale, entity_type="team") or "Unknown away team"
+        competition_name = localize_sports_text(league.get("name") or "Football", locale, entity_type="league", country=league.get("country")) or "Football"
         venue = localize_sports_text(_venue_name(fixture), locale)
         description_source = f"{home_name} vs {away_name} in {competition_name}"
         description = localize_sports_text(description_source, locale) if locale == "ar" else description_source
@@ -240,6 +306,37 @@ def _extract_fixtures(payload: dict | list) -> list[dict]:
         return [item for item in fixtures if isinstance(item, dict)]
 
     return []
+
+
+def _fixture_cache_path() -> Path:
+    configured_path = settings.football_data_fixture_cache_path.strip()
+    if not configured_path:
+        return _DEFAULT_FIXTURE_CACHE_PATH
+    return Path(configured_path)
+
+
+def _empty_fixture_cache() -> dict:
+    return {"version": _FIXTURE_CACHE_VERSION, "entries": {}}
+
+
+def _fixture_cache_entry(cache: dict, request_date: str) -> dict | None:
+    entries = cache.get("entries")
+    if not isinstance(entries, dict):
+        return None
+    entry = entries.get(request_date)
+    return entry if isinstance(entry, dict) else None
+
+
+def _prune_fixture_cache_entries(entries: dict) -> None:
+    cutoff = datetime.now(UTC).date().toordinal() - _FIXTURE_CACHE_MAX_AGE_DAYS
+    for request_date in list(entries):
+        try:
+            entry_date = date.fromisoformat(request_date)
+        except ValueError:
+            entries.pop(request_date, None)
+            continue
+        if entry_date.toordinal() < cutoff:
+            entries.pop(request_date, None)
 
 
 def _dedupe_fixtures(fixtures: list[dict]) -> list[dict]:

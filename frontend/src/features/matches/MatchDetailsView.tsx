@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { MatchPreviewArticle } from "@/components/matches/MatchPreviewArticle";
 import { MatchPlayer } from "@/components/matches/MatchPlayer";
 import { NewsListSection } from "@/components/news/NewsListSection";
 import { Card } from "@/components/ui/Card";
@@ -53,7 +54,11 @@ export function MatchDetailsView({ locale, messages, match }: { locale: Locale; 
           </Link>
         </div>
       </Card>
-      <MatchPlayer stream={match.stream_link} canShowPlayer={match.can_show_player} messages={messages} />
+      {match.can_show_player && match.stream_link ? (
+        <MatchPlayer stream={match.stream_link} canShowPlayer={match.can_show_player} messages={messages} />
+      ) : (
+        <MatchPreviewArticle locale={locale} match={match} messages={messages} />
+      )}
       <NewsListSection locale={locale} title={messages.relatedNews} articles={match.related_news} emptyLabel={messages.empty} readMoreLabel={messages.readMore} />
     </div>
   );

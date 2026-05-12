@@ -17,6 +17,24 @@ def current_sports_date() -> date:
     return datetime.now(sports_timezone()).date()
 
 
+def sports_refresh_slot_key(now: datetime | None = None) -> str:
+    timezone = sports_timezone()
+    current = now.astimezone(timezone) if now else datetime.now(timezone)
+    refresh_hour = 0 if current.hour < 12 else 12
+    slot = current.replace(hour=refresh_hour, minute=0, second=0, microsecond=0)
+    return slot.isoformat()
+
+
+def seconds_until_next_sports_refresh(now: datetime | None = None) -> int:
+    timezone = sports_timezone()
+    current = now.astimezone(timezone) if now else datetime.now(timezone)
+    next_refresh_hour = 12 if current.hour < 12 else 0
+    next_refresh = current.replace(hour=next_refresh_hour, minute=0, second=0, microsecond=0)
+    if current.hour >= 12:
+        next_refresh += timedelta(days=1)
+    return max(1, int((next_refresh - current).total_seconds()))
+
+
 def utc_dates_for_sports_date(target_date: date) -> list[date]:
     timezone = sports_timezone()
     local_start = datetime.combine(target_date, time.min, tzinfo=timezone)

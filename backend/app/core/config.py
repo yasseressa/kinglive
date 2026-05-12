@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     football_data_api_key: str = ""
     football_data_competitions: str = "PL,CL,SA,PD,BL1,FL1"
     football_data_timezone: str = "Asia/Riyadh"
+    football_data_fixture_cache_path: str = ""
     sportmonks_base_url: str = "https://api.sportmonks.com/v3/football"
     sportmonks_api_token: str = ""
     gnews_base_url: str = "https://gnews.io/api/v4"

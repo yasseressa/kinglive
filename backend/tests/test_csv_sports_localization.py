@@ -10,3 +10,12 @@ def test_localize_sports_text_uses_csv_for_supported_locales():
 def test_localize_sports_text_matches_names_with_common_prefixes():
     assert localize_sports_text("FC Arsenal", "ar") == "أرسنال"
     assert localize_sports_text("Arsenal FC", "fr") == "Arsenal"
+
+
+def test_localize_sports_text_uses_country_context_for_ambiguous_leagues():
+    assert localize_sports_text("Premier League", "ar", entity_type="league", country="Egypt") == "الدوري المصري الدرجة الأولى"
+    assert localize_sports_text("Premier League", "ar", entity_type="league", country="England") == "الدوري الإنجليزي الممتاز"
+
+
+def test_localize_sports_text_uses_csv_for_modern_sport():
+    assert localize_sports_text("Modern Sport FC", "ar", entity_type="team") == "مودرن سبورت"

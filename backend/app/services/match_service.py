@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.cache import CacheBackend, CacheKeys
 from app.core.constants import HOME_MATCHES_CACHE_TTL_SECONDS, MATCH_DETAILS_CACHE_TTL_SECONDS
-from app.core.time import current_sports_date, is_on_sports_date, sports_timezone
+from app.core.time import current_sports_date, is_on_sports_date, seconds_until_next_sports_refresh, sports_refresh_slot_key, sports_timezone
 from app.integrations.shared_models import MatchData, NewsArticleData
 from app.integrations.sports.client import SportsAPIClient
 from app.repositories.stream_link import StreamLinkRepository
@@ -44,7 +44,7 @@ class MatchService:
         return match, stream_link, can_show_player, related_news
 
     async def _get_cached_match(self, match_id: str, locale: str) -> MatchData:
-        cache_key = CacheKeys.match_details(match_id, locale)
+        cache_key = f"{CacheKeys.match_details(match_id, locale)}:{sports_refresh_slot_key()}"
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
@@ -53,7 +53,7 @@ class MatchService:
         if match is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Match not found")
 
-        self.cache.set(cache_key, match, MATCH_DETAILS_CACHE_TTL_SECONDS)
+        self.cache.set(cache_key, match, min(MATCH_DETAILS_CACHE_TTL_SECONDS, seconds_until_next_sports_refresh()))
         return match
 
     def _can_show_player(self, match: MatchData, stream_link) -> bool:
@@ -72,11 +72,11 @@ class MatchService:
             ("tomorrow", today + timedelta(days=1)),
         )
         for bucket, target_date in buckets:
-            cache_key = CacheKeys.home_matches(locale, bucket, target_date.isoformat())
+            cache_key = CacheKeys.home_matches(locale, bucket, f"{target_date.isoformat()}:{sports_refresh_slot_key()}")
             matches = self.cache.get(cache_key)
             if matches is None:
                 matches = await self.sports_client.get_matches_for_date(target_date, locale)
-                self.cache.set(cache_key, matches, HOME_MATCHES_CACHE_TTL_SECONDS)
+                self.cache.set(cache_key, matches, min(HOME_MATCHES_CACHE_TTL_SECONDS, seconds_until_next_sports_refresh()))
             for match in matches:
                 if match.external_match_id == match_id:
                     return match

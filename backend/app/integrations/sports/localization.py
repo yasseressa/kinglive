@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import re
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
@@ -138,11 +139,39 @@ _CHAR_MAP = {
 }
 
 
-def localize_sports_text(value: str | None, locale: str) -> str | None:
+@dataclass(frozen=True, slots=True)
+class _CsvTranslationEntry:
+    entity_type: str
+    english_name: str
+    lookup_key: str
+    relaxed_lookup_key: str
+    translations: dict[str, str]
+
+
+_ENTITY_TYPE_MAP = {
+    "league": "دوري",
+    "competition": "دوري",
+    "team": "نادي",
+    "club": "نادي",
+}
+_COUNTRY_HINTS = {
+    "egypt": ("egypt", "egyptian"),
+    "england": ("england", "english"),
+    "saudi arabia": ("saudi", "saudi arabia"),
+    "spain": ("spain", "spanish"),
+    "germany": ("germany", "german"),
+    "italy": ("italy", "italian"),
+    "france": ("france", "french"),
+    "netherlands": ("netherlands", "dutch", "netherland"),
+    "portugal": ("portugal", "portuguese"),
+}
+
+
+def localize_sports_text(value: str | None, locale: str, *, entity_type: str | None = None, country: str | None = None) -> str | None:
     if value is None:
         return value
 
-    csv_translation = _lookup_csv_translation(value, locale)
+    csv_translation = _lookup_csv_translation(value, locale, entity_type=entity_type, country=country)
     if csv_translation:
         return csv_translation
 
@@ -177,38 +206,59 @@ def _transliterate_latin_to_arabic(word: str) -> str:
     return "".join(letters)
 
 
-def _lookup_csv_translation(value: str, locale: str) -> str | None:
-    translations = _load_csv_translations()
-    locale_translations = translations.get(locale)
-    if not locale_translations:
+def _lookup_csv_translation(value: str, locale: str, *, entity_type: str | None = None, country: str | None = None) -> str | None:
+    entries = _load_csv_translation_entries()
+    if not entries:
         return None
-    lookup_key = _normalize_lookup_key(value)
-    direct = locale_translations.get(lookup_key)
-    if direct:
-        return direct
 
+    lookup_key = _normalize_lookup_key(value)
     relaxed_lookup_key = _normalize_relaxed_lookup_key(value)
-    for source_key, translated in locale_translations.items():
-        if _names_match_relaxed(relaxed_lookup_key, _normalize_relaxed_lookup_key(source_key)):
-            return translated
-    return None
+    expected_entity_type = _normalize_entity_type(entity_type)
+    country_hints = _country_hints(country)
+    best_match: tuple[int, str] | None = None
+
+    for entry in entries:
+        translated = entry.translations.get(locale)
+        if not translated:
+            continue
+        if expected_entity_type and entry.entity_type != expected_entity_type:
+            continue
+
+        score = _csv_match_score(lookup_key, relaxed_lookup_key, entry, country_hints)
+        if score <= 0:
+            continue
+        if best_match is None or score > best_match[0]:
+            best_match = (score, translated)
+
+    return best_match[1] if best_match else None
 
 
 @lru_cache
 def _load_csv_translations() -> dict[str, dict[str, str]]:
+    translations: dict[str, dict[str, str]] = {"ar": {}, "en": {}, "fr": {}, "es": {}}
+    for entry in _load_csv_translation_entries():
+        for locale, translated in entry.translations.items():
+            translations[locale][entry.lookup_key] = translated
+    return translations
+
+
+@lru_cache
+def _load_csv_translation_entries() -> tuple[_CsvTranslationEntry, ...]:
     path = _translation_csv_path()
     if not path.exists():
-        return {}
+        return ()
 
-    translations: dict[str, dict[str, str]] = {"ar": {}, "en": {}, "fr": {}, "es": {}}
+    entries: list[_CsvTranslationEntry] = []
     with path.open(encoding="utf-8-sig", newline="") as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
+            entity_type = _clean_csv_value(row.get("النوع")) or ""
             english_name = _clean_csv_value(row.get("الاسم الإنجليزي"))
             if not english_name:
                 continue
 
             lookup_key = _normalize_lookup_key(english_name)
+            translations: dict[str, str] = {}
             for locale, column_name in (
                 ("ar", "الاسم العربي"),
                 ("en", "الاسم الإنجليزي"),
@@ -217,9 +267,19 @@ def _load_csv_translations() -> dict[str, dict[str, str]]:
             ):
                 translated = _clean_csv_value(row.get(column_name))
                 if translated:
-                    translations[locale][lookup_key] = translated
+                    translations[locale] = translated
 
-    return translations
+            entries.append(
+                _CsvTranslationEntry(
+                    entity_type=entity_type,
+                    english_name=english_name,
+                    lookup_key=lookup_key,
+                    relaxed_lookup_key=_normalize_relaxed_lookup_key(english_name),
+                    translations=translations,
+                )
+            )
+
+    return tuple(entries)
 
 
 def _translation_csv_path() -> Path:
@@ -239,6 +299,37 @@ def _normalize_relaxed_lookup_key(value: str) -> str:
         if word not in _SPORTS_NAME_STOP_WORDS
     ]
     return " ".join(words)
+
+
+def _normalize_entity_type(entity_type: str | None) -> str | None:
+    if not entity_type:
+        return None
+    normalized = entity_type.strip().casefold()
+    return _ENTITY_TYPE_MAP.get(normalized, entity_type.strip())
+
+
+def _country_hints(country: str | None) -> tuple[str, ...]:
+    if not country:
+        return ()
+    normalized = _normalize_lookup_key(country)
+    return _COUNTRY_HINTS.get(normalized, (normalized,))
+
+
+def _csv_match_score(candidate: str, relaxed_candidate: str, entry: _CsvTranslationEntry, country_hints: tuple[str, ...]) -> int:
+    score = 0
+    if candidate == entry.lookup_key:
+        score = 100
+    elif relaxed_candidate == entry.relaxed_lookup_key:
+        score = 90
+    elif _names_match_relaxed(relaxed_candidate, entry.relaxed_lookup_key):
+        score = 50
+
+    if score <= 0:
+        return 0
+
+    if country_hints and any(hint in entry.lookup_key for hint in country_hints):
+        score += 30
+    return score
 
 
 def _names_match_relaxed(candidate: str, source: str) -> bool:

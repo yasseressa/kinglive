@@ -96,9 +96,9 @@ class SportmonksSportsAPIClient(SportsAPIClient):
     def _map_fixture(self, fixture: dict, league: dict, locale: str) -> MatchData:
         home = _participant_by_location(fixture, "home")
         away = _participant_by_location(fixture, "away")
-        home_name = localize_sports_text(_participant_name(home) or "Unknown home team", locale) or "Unknown home team"
-        away_name = localize_sports_text(_participant_name(away) or "Unknown away team", locale) or "Unknown away team"
-        competition_name = localize_sports_text(league.get("name") or "Football", locale) or "Football"
+        home_name = localize_sports_text(_participant_name(home) or "Unknown home team", locale, entity_type="team") or "Unknown home team"
+        away_name = localize_sports_text(_participant_name(away) or "Unknown away team", locale, entity_type="team") or "Unknown away team"
+        competition_name = localize_sports_text(league.get("name") or "Football", locale, entity_type="league") or "Football"
         stage_name = (fixture.get("stage") or {}).get("name")
         round_name = (fixture.get("round") or {}).get("name")
         venue = _build_venue(stage_name, round_name)
