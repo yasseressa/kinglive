@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const POPUP_STORAGE_KEY = "goal-stream-bottom-image-popup-dismissed";
+const INITIAL_POPUP_DELAY_MS = 700;
+const POPUP_REPEAT_DELAY_MS = 30_000;
 
 interface PopupAdConfig {
   imageUrl: string;
@@ -13,12 +14,9 @@ interface PopupAdConfig {
 export function BottomImagePopup() {
   const [config, setConfig] = useState<PopupAdConfig | null>(null);
   const [visible, setVisible] = useState(false);
+  const showTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (window.sessionStorage.getItem(POPUP_STORAGE_KEY) === "1") {
-      return;
-    }
-
     let active = true;
 
     fetch("/api/v1/popup-ad/config", { cache: "no-store" })
@@ -34,16 +32,19 @@ export function BottomImagePopup() {
           alt: payload.alt?.trim() || "Advertisement",
         });
 
-        window.setTimeout(() => {
+        showTimerRef.current = window.setTimeout(() => {
           if (active) {
             setVisible(true);
           }
-        }, 700);
+        }, INITIAL_POPUP_DELAY_MS);
       })
       .catch(() => undefined);
 
     return () => {
       active = false;
+      if (showTimerRef.current !== null) {
+        window.clearTimeout(showTimerRef.current);
+      }
     };
   }, []);
 
@@ -52,9 +53,16 @@ export function BottomImagePopup() {
   }
 
   const handleClick = () => {
-    window.sessionStorage.setItem(POPUP_STORAGE_KEY, "1");
     setVisible(false);
     window.open(config.linkUrl, "_blank", "noopener,noreferrer");
+
+    if (showTimerRef.current !== null) {
+      window.clearTimeout(showTimerRef.current);
+    }
+
+    showTimerRef.current = window.setTimeout(() => {
+      setVisible(true);
+    }, POPUP_REPEAT_DELAY_MS);
   };
 
   return (
