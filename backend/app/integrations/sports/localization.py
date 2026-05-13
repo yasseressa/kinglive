@@ -289,7 +289,8 @@ def _translation_csv_path() -> Path:
 def _normalize_lookup_key(value: str) -> str:
     normalized = value.casefold().replace("-", " ")
     normalized = re.sub(r"[^a-z0-9\u00c0-\u024f]+", " ", normalized)
-    return " ".join(normalized.split())
+    normalized = " ".join(normalized.split())
+    return normalized.replace("laliga", "la liga")
 
 
 def _normalize_relaxed_lookup_key(value: str) -> str:

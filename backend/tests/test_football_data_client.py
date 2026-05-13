@@ -7,51 +7,51 @@ from app.integrations.sports import football_data
 from app.integrations.sports.football_data import FootballDataSportsAPIClient, _is_allowed_league, _is_fixture_on_date
 
 
-def test_football_data_maps_api_sports_fixture_to_match_data():
+def test_football_data_maps_rapidapi_fixture_to_match_data():
     client = FootballDataSportsAPIClient()
     payload = {
-        "fixture": {
-            "id": 5205813,
-            "date": "2026-04-29T19:00:00+00:00",
-            "timestamp": 1777489200,
-            "venue": {"name": "Metropolitano Stadium", "city": "Madrid"},
-            "status": {"long": "Match Finished", "short": "FT", "elapsed": 90},
+        "league": {"ccode": "ENG", "id": 47, "name": "Premier League"},
+        "match": {
+            "id": 4813681,
+            "time": "13.05.2026 21:00",
+            "home": {"id": 8456, "score": 2, "name": "Man City", "longName": "Manchester City"},
+            "away": {"id": 9826, "score": 1, "name": "Crystal Palace", "longName": "Crystal Palace"},
+            "status": {
+                "utcTime": "2026-05-13T19:00:00.000Z",
+                "started": True,
+                "cancelled": False,
+                "finished": False,
+            },
+            "timeTS": 1778698800000,
         },
-        "league": {"id": 2, "name": "UEFA Champions League", "logo": "https://media.api-sports.io/football/leagues/2.png"},
-        "teams": {
-            "home": {"id": 9906, "name": "Atletico Madrid", "logo": "https://media.api-sports.io/football/teams/9906.png"},
-            "away": {"id": 9825, "name": "Arsenal", "logo": "https://media.api-sports.io/football/teams/9825.png"},
-        },
-        "goals": {"home": 1, "away": 1},
     }
 
     match = client._map_match(payload, "en")
 
-    assert match.external_match_id == "5205813"
-    assert match.competition_name == "UEFA Champions League"
-    assert match.home_team == "Atletico Madrid"
-    assert match.away_team == "Arsenal"
-    assert match.home_score == 1
+    assert match.external_match_id == "4813681"
+    assert match.competition_name == "English Premier League"
+    assert match.home_team == "Manchester City"
+    assert match.away_team == "Crystal Palace"
+    assert match.home_score == 2
     assert match.away_score == 1
-    assert match.status == "finished"
-    assert match.start_time == datetime(2026, 4, 29, 19, 0, tzinfo=UTC)
-    assert match.venue == "Metropolitano Stadium, Madrid"
-    assert match.home_team_crest == "https://media.api-sports.io/football/teams/9906.png"
-    assert match.away_team_crest == "https://media.api-sports.io/football/teams/9825.png"
-    assert match.competition_emblem == "https://media.api-sports.io/football/leagues/2.png"
+    assert match.status == "live"
+    assert match.start_time == datetime(2026, 5, 13, 19, 0, tzinfo=UTC)
+    assert match.venue is None
+    assert match.home_team_crest is None
+    assert match.away_team_crest is None
+    assert match.competition_emblem is None
 
 
 def test_football_data_filters_allowed_leagues():
-    assert _is_allowed_league({"league": {"country": "World", "name": "UEFA Champions League"}})
-    assert _is_allowed_league({"league": {"country": "Spain", "name": "La Liga"}})
-    assert _is_allowed_league({"league": {"country": "Saudi-Arabia", "name": "Pro League"}})
-    assert _is_allowed_league({"league": {"country": "UEFA Europa League", "name": "World"}})
-    assert not _is_allowed_league({"league": {"country": "Chile", "name": "Primera B"}})
-    assert not _is_allowed_league({"league": {"country": "Belgium", "name": "Pro League"}})
+    assert _is_allowed_league({"league": {"ccode": "INT", "name": "UEFA Champions League"}})
+    assert _is_allowed_league({"league": {"ccode": "ESP", "name": "LaLiga"}})
+    assert _is_allowed_league({"league": {"ccode": "EGY", "name": "Premier League"}})
+    assert not _is_allowed_league({"league": {"ccode": "CHI", "name": "Primera B"}})
+    assert not _is_allowed_league({"league": {"ccode": "BEL", "name": "Pro League"}})
 
 
 def test_football_data_keeps_matches_by_configured_local_date():
-    payload = {"fixture": {"id": 1, "date": "2026-05-09T22:30:00+00:00"}}
+    payload = {"match": {"id": 1, "status": {"utcTime": "2026-05-09T22:30:00.000Z"}}}
 
     assert _is_fixture_on_date(payload, date(2026, 5, 10))
     assert not _is_fixture_on_date(payload, date(2026, 5, 9))
@@ -66,13 +66,13 @@ def test_football_data_requests_provider_dates_around_local_day():
 
 
 @pytest.mark.asyncio
-async def test_football_data_treats_api_sports_errors_as_failed_request(monkeypatch):
+async def test_football_data_treats_rapidapi_errors_as_failed_request(monkeypatch):
     class FakeResponse:
         def raise_for_status(self):
             return None
 
         def json(self):
-            return {"errors": {"token": "missing application key"}, "results": 0, "response": []}
+            return {"errors": {"token": "missing application key"}, "response": []}
 
     class FakeAsyncClient:
         def __init__(self, **kwargs):
@@ -98,13 +98,13 @@ def test_football_data_file_cache_is_bound_to_refresh_slot(tmp_path, monkeypatch
     monkeypatch.setattr(football_data, "sports_refresh_slot_key", lambda: "2026-05-13T00:00:00+03:00")
     client = FootballDataSportsAPIClient()
     client.fixture_cache_path = tmp_path / "football_fixtures_cache.json"
-    payload = {"response": [{"fixture": {"id": 1}}]}
+    payload = {"response": [{"ccode": "ENG", "name": "Premier League", "matches": [{"id": 1}]}]}
 
-    client._set_cached_provider_payload("2026-05-13", payload)
+    client._set_cached_provider_payload("20260513", payload)
 
-    assert client._get_cached_provider_payload("2026-05-13") == payload
+    assert client._get_cached_provider_payload("20260513") == payload
 
     monkeypatch.setattr(football_data, "sports_refresh_slot_key", lambda: "2026-05-13T12:00:00+03:00")
 
-    assert client._get_cached_provider_payload("2026-05-13") is None
-    assert client._get_cached_provider_payload("2026-05-13", allow_stale=True) == payload
+    assert client._get_cached_provider_payload("20260513") is None
+    assert client._get_cached_provider_payload("20260513", allow_stale=True) == payload

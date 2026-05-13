@@ -19,37 +19,48 @@ from app.integrations.sports.localization import localize_sports_text
 
 logger = logging.getLogger(__name__)
 
-_FIXTURES_PATH = "/fixtures"
-_PROVIDER_NAME = "api_sports"
+_FIXTURES_PATH = "/football-get-matches-by-date-and-league"
+_PROVIDER_NAME = "rapidapi_live_football"
 
-_LIVE_STATUSES = {"1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT", "LIVE"}
-_FINISHED_STATUSES = {"FT", "AET", "PEN"}
-_POSTPONED_STATUSES = {"PST", "TBD"}
-_CANCELLED_STATUSES = {"CANC", "ABD", "AWD", "WO"}
 _ALLOWED_LEAGUE_FILTERS = {
-    ("england", "premier league"),
-    ("france", "ligue 1"),
-    ("spain", "la liga"),
-    ("spain", "laliga"),
-    ("spain", "la liga ea sports"),
-    ("spain", "primera division"),
-    ("germany", "bundesliga"),
-    ("italy", "serie a"),
-    ("portugal", "primeira liga"),
-    ("netherlands", "eredivisie"),
-    ("saudi arabia", "pro league"),
-    ("egypt", "premier league"),
-    ("world", "fifa world cup"),
-    ("world", "uefa europa league"),
-    ("world", "uefa europa conference league"),
-    ("world", "uefa conference league"),
-    ("world", "uefa champions league"),
-    ("world", "caf champions league"),
-    ("world", "european championship"),
-    ("world", "euro championship"),
-    ("uefa europa league", "world"),
-    ("uefa europa conference league", "world"),
-    ("uefa champions league", "world"),
+    ("ENG", "premier league"),
+    ("ESP", "laliga"),
+    ("ESP", "la liga"),
+    ("GER", "bundesliga"),
+    ("ITA", "serie a"),
+    ("FRA", "ligue 1"),
+    ("POR", "primeira liga"),
+    ("NED", "eredivisie"),
+    ("KSA", "pro league"),
+    ("KSA", "saudi pro league"),
+    ("EGY", "premier league"),
+    ("INT", "fifa world cup"),
+    ("INT", "uefa europa league"),
+    ("INT", "uefa europa conference league"),
+    ("INT", "uefa conference league"),
+    ("INT", "uefa champions league"),
+    ("INT", "caf champions league"),
+    ("INT", "european championship"),
+    ("INT", "euro championship"),
+    ("EUR", "uefa europa league"),
+    ("EUR", "uefa europa conference league"),
+    ("EUR", "uefa conference league"),
+    ("EUR", "uefa champions league"),
+    ("WRL", "fifa world cup"),
+}
+_COUNTRY_BY_CCODE = {
+    "ENG": "England",
+    "ESP": "Spain",
+    "GER": "Germany",
+    "ITA": "Italy",
+    "FRA": "France",
+    "POR": "Portugal",
+    "NED": "Netherlands",
+    "KSA": "Saudi Arabia",
+    "EGY": "Egypt",
+    "INT": "World",
+    "EUR": "World",
+    "WRL": "World",
 }
 
 
@@ -60,7 +71,7 @@ class _CachedFixtures:
 
 
 _DEFAULT_FIXTURE_CACHE_PATH = Path(__file__).resolve().parents[3] / "data" / "football_fixtures_cache.json"
-_FIXTURE_CACHE_VERSION = 1
+_FIXTURE_CACHE_VERSION = 2
 _FIXTURE_CACHE_MAX_AGE_DAYS = 4
 
 
@@ -69,8 +80,10 @@ class FootballDataSportsAPIClient(SportsAPIClient):
         self.enabled = bool(settings.football_data_base_url and settings.football_data_api_key)
         self.base_url = settings.football_data_base_url.strip().strip('"').rstrip("/")
         self.headers = {
-            "x-apisports-key": settings.football_data_api_key.strip().strip('"'),
+            "x-rapidapi-host": settings.football_data_rapidapi_host.strip().strip('"'),
+            "x-rapidapi-key": settings.football_data_api_key.strip().strip('"'),
             "Accept": "application/json",
+            "Content-Type": "application/json",
         }
         self._fixtures_cache: dict[str, _CachedFixtures] = {}
         self._cache_lock = RLock()
@@ -178,7 +191,7 @@ class FootballDataSportsAPIClient(SportsAPIClient):
             )
 
     async def _fetch_fixtures(self, target_date: date, log_context: dict) -> dict | None:
-        request_date = target_date.isoformat()
+        request_date = target_date.strftime("%Y%m%d")
         cached_payload = self._get_cached_provider_payload(request_date)
         if cached_payload is not None:
             return cached_payload
@@ -187,7 +200,7 @@ class FootballDataSportsAPIClient(SportsAPIClient):
             async with httpx.AsyncClient(base_url=self.base_url, headers=self.headers, timeout=20.0) as client:
                 response = await client.get(
                     _FIXTURES_PATH,
-                    params={"date": request_date, "timezone": settings.football_data_timezone},
+                    params={"date": request_date},
                 )
             response.raise_for_status()
             payload = response.json()
@@ -202,7 +215,7 @@ class FootballDataSportsAPIClient(SportsAPIClient):
                     return None
                 logger.info(
                     "sports_api_response_loaded",
-                    extra={"provider": _PROVIDER_NAME, "date": request_date, "results": results},
+                    extra={"provider": _PROVIDER_NAME, "date": request_date, "league_count": len(results) if isinstance(results, list) else results},
                 )
                 self._set_cached_provider_payload(request_date, payload)
             return payload
@@ -253,7 +266,7 @@ class FootballDataSportsAPIClient(SportsAPIClient):
             logger.exception("sports_api_file_cache_read_failed", extra={"path": str(self.fixture_cache_path)})
             return _empty_fixture_cache()
 
-        if not isinstance(cache, dict) or not isinstance(cache.get("entries"), dict):
+        if not isinstance(cache, dict) or cache.get("version") != _FIXTURE_CACHE_VERSION or not isinstance(cache.get("entries"), dict):
             return _empty_fixture_cache()
         return cache
 
@@ -268,15 +281,14 @@ class FootballDataSportsAPIClient(SportsAPIClient):
             logger.exception("sports_api_file_cache_write_failed", extra={"path": str(self.fixture_cache_path)})
 
     def _map_match(self, payload: dict, locale: str) -> MatchData:
-        fixture = payload.get("fixture") or {}
+        fixture = payload.get("match") or {}
         league = payload.get("league") or {}
-        teams = payload.get("teams") or {}
-        home_team = teams.get("home") or {}
-        away_team = teams.get("away") or {}
-        goals = payload.get("goals") or {}
+        home_team = fixture.get("home") or {}
+        away_team = fixture.get("away") or {}
+        country = _country_from_league(league)
         home_name = localize_sports_text(_pick_team_name(home_team) or "Unknown home team", locale, entity_type="team") or "Unknown home team"
         away_name = localize_sports_text(_pick_team_name(away_team) or "Unknown away team", locale, entity_type="team") or "Unknown away team"
-        competition_name = localize_sports_text(league.get("name") or "Football", locale, entity_type="league", country=league.get("country")) or "Football"
+        competition_name = localize_sports_text(league.get("name") or "Football", locale, entity_type="league", country=country) or "Football"
         venue = localize_sports_text(_venue_name(fixture), locale)
         description_source = f"{home_name} vs {away_name} in {competition_name}"
         description = localize_sports_text(description_source, locale) if locale == "ar" else description_source
@@ -289,8 +301,8 @@ class FootballDataSportsAPIClient(SportsAPIClient):
             status=_status_from_fixture(fixture),
             venue=venue,
             description=description,
-            home_score=_pick_score(goals, "home"),
-            away_score=_pick_score(goals, "away"),
+            home_score=_pick_score(home_team),
+            away_score=_pick_score(away_team),
             home_team_crest=home_team.get("logo"),
             away_team_crest=away_team.get("logo"),
             competition_emblem=league.get("logo"),
@@ -301,9 +313,22 @@ def _extract_fixtures(payload: dict | list) -> list[dict]:
     if isinstance(payload, list):
         return [item for item in payload if isinstance(item, dict)]
 
-    fixtures = payload.get("response") if isinstance(payload, dict) else None
-    if isinstance(fixtures, list):
-        return [item for item in fixtures if isinstance(item, dict)]
+    leagues = payload.get("response") if isinstance(payload, dict) else None
+    if isinstance(leagues, list):
+        fixtures: list[dict] = []
+        for league in leagues:
+            if not isinstance(league, dict):
+                continue
+            matches = league.get("matches")
+            if not isinstance(matches, list):
+                continue
+            league_payload = {key: value for key, value in league.items() if key != "matches"}
+            fixtures.extend(
+                {"league": league_payload, "match": match}
+                for match in matches
+                if isinstance(match, dict)
+            )
+        return fixtures
 
     return []
 
@@ -342,7 +367,7 @@ def _prune_fixture_cache_entries(entries: dict) -> None:
 def _dedupe_fixtures(fixtures: list[dict]) -> list[dict]:
     unique: dict[str, dict] = {}
     for fixture_payload in fixtures:
-        fixture = fixture_payload.get("fixture") or {}
+        fixture = fixture_payload.get("match") or {}
         fixture_id = fixture.get("id")
         key = str(fixture_id) if fixture_id is not None else str(id(fixture_payload))
         unique[key] = fixture_payload
@@ -350,17 +375,17 @@ def _dedupe_fixtures(fixtures: list[dict]) -> list[dict]:
 
 
 def _is_fixture_on_date(payload: dict, target_date: date) -> bool:
-    fixture = payload.get("fixture") or {}
+    fixture = payload.get("match") or {}
     return is_on_sports_date(_parse_datetime(fixture), target_date)
 
 
 def _is_allowed_league(payload: dict) -> bool:
     league = payload.get("league") or {}
-    country = league.get("country")
+    ccode = league.get("ccode")
     league_name = league.get("name")
-    if not isinstance(country, str) or not isinstance(league_name, str):
+    if not isinstance(ccode, str) or not isinstance(league_name, str):
         return False
-    return (_normalize_filter_value(country), _normalize_filter_value(league_name)) in _ALLOWED_LEAGUE_FILTERS
+    return (ccode.upper(), _normalize_filter_value(league_name)) in _ALLOWED_LEAGUE_FILTERS
 
 
 def _count_rejected_leagues(fixtures: list[dict], target_date: date) -> dict[str, int]:
@@ -370,7 +395,7 @@ def _count_rejected_leagues(fixtures: list[dict], target_date: date) -> dict[str
             continue
 
         league = fixture_payload.get("league") or {}
-        country = league.get("country") or "Unknown"
+        country = league.get("ccode") or "Unknown"
         league_name = league.get("name") or "Unknown"
         rejected[f"{country} | {league_name}"] += 1
     return dict(rejected.most_common(20))
@@ -381,22 +406,23 @@ def _normalize_filter_value(value: str) -> str:
 
 
 def _parse_datetime(fixture: dict) -> datetime:
-    value = fixture.get("date")
+    status = fixture.get("status") or {}
+    value = status.get("utcTime") if isinstance(status, dict) else None
     if not value:
-        timestamp = fixture.get("timestamp")
+        timestamp = fixture.get("timeTS")
         if isinstance(timestamp, int | float):
-            return datetime.fromtimestamp(timestamp, UTC)
+            return datetime.fromtimestamp(timestamp / 1000, UTC)
         return datetime.now(UTC)
     parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
 
 
 def _pick_team_name(team_payload: dict) -> str | None:
-    return team_payload.get("name")
+    return team_payload.get("longName") or team_payload.get("name")
 
 
-def _pick_score(goals_payload: dict, side: str) -> int | None:
-    score = goals_payload.get(side)
+def _pick_score(team_payload: dict) -> int | None:
+    score = team_payload.get("score")
     return score if isinstance(score, int) else None
 
 
@@ -413,13 +439,17 @@ def _status_from_fixture(fixture: dict) -> str:
     status = fixture.get("status") or {}
     if not isinstance(status, dict):
         return "scheduled"
-    short = str(status.get("short") or "").upper()
-    if short in _CANCELLED_STATUSES:
+    if status.get("cancelled") is True:
         return "cancelled"
-    if short in _POSTPONED_STATUSES:
-        return "postponed"
-    if short in _FINISHED_STATUSES:
+    if status.get("finished") is True:
         return "finished"
-    if short in _LIVE_STATUSES:
+    if status.get("started") is True:
         return "live"
     return "scheduled"
+
+
+def _country_from_league(league: dict) -> str | None:
+    ccode = league.get("ccode")
+    if not isinstance(ccode, str):
+        return None
+    return _COUNTRY_BY_CCODE.get(ccode.upper())
