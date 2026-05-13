@@ -34,8 +34,6 @@ _ALLOWED_LEAGUE_FILTERS = {
     ("FRA", "ligue 1"),
     ("POR", "primeira liga"),
     ("NED", "eredivisie"),
-    ("KSA", "pro league"),
-    ("KSA", "saudi pro league"),
     ("EGY", "premier league"),
     ("INT", "fifa world cup"),
     ("INT", "uefa europa league"),
@@ -73,7 +71,6 @@ _LEAGUE_BY_ID = {
     87: {"ccode": "ESP", "name": "LaLiga"},
     55_009: {"ccode": "ITA", "name": "Serie A"},
     923880: {"ccode": "EGY", "name": "Premier League"},
-    10721: {"ccode": "KSA", "name": "Saudi Pro League"},
 }
 _ALLOWED_LEAGUE_IDS = set(_LEAGUE_BY_ID)
 _TEAM_LOGO_URL = "https://images.fotmob.com/image_resources/logo/teamlogo/{team_id}.png"

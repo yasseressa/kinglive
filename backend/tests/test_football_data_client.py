@@ -71,9 +71,9 @@ def test_football_data_extracts_allowed_matches_from_all_matches_payload():
                 },
                 {
                     "id": 999,
-                    "leagueId": 123456,
-                    "home": {"longName": "Other"},
-                    "away": {"longName": "Team"},
+                    "leagueId": 10721,
+                    "home": {"longName": "Al-Faisaly"},
+                    "away": {"longName": "Al Batin"},
                     "status": {"utcTime": "2026-05-13T14:00:00.000Z"},
                 },
             ]
