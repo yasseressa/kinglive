@@ -20,6 +20,7 @@ from app.integrations.sports.localization import localize_sports_text
 logger = logging.getLogger(__name__)
 
 _FIXTURES_PATH = "/football-get-matches-by-date-and-league"
+_ALL_MATCHES_PATH = "/football-get-matches-by-date"
 _PROVIDER_NAME = "rapidapi_live_football"
 
 _ALLOWED_LEAGUE_FILTERS = {
@@ -64,6 +65,17 @@ _COUNTRY_BY_CCODE = {
     "EUR": "World",
     "WRL": "World",
 }
+_LEAGUE_BY_ID = {
+    47: {"ccode": "ENG", "name": "Premier League"},
+    53: {"ccode": "FRA", "name": "Ligue 1"},
+    54: {"ccode": "GER", "name": "Bundesliga"},
+    55: {"ccode": "ITA", "name": "Coppa Italia"},
+    87: {"ccode": "ESP", "name": "LaLiga"},
+    55_009: {"ccode": "ITA", "name": "Serie A"},
+    923880: {"ccode": "EGY", "name": "Premier League"},
+    10721: {"ccode": "KSA", "name": "Saudi Pro League"},
+}
+_ALLOWED_LEAGUE_IDS = set(_LEAGUE_BY_ID)
 _TEAM_LOGO_URL = "https://images.fotmob.com/image_resources/logo/teamlogo/{team_id}.png"
 _LEAGUE_LOGO_URL = "https://images.fotmob.com/image_resources/logo/leaguelogo/{league_id}.png"
 
@@ -75,7 +87,7 @@ class _CachedFixtures:
 
 
 _DEFAULT_FIXTURE_CACHE_PATH = Path(__file__).resolve().parents[3] / "data" / "football_fixtures_cache.json"
-_FIXTURE_CACHE_VERSION = 2
+_FIXTURE_CACHE_VERSION = 3
 _FIXTURE_CACHE_MAX_AGE_DAYS = 4
 
 
@@ -157,6 +169,13 @@ class FootballDataSportsAPIClient(SportsAPIClient):
                 continue
             fixtures.extend(request_fixtures)
 
+            all_matches_payload = await self._fetch_all_matches(request_date, log_context={"date": cache_key})
+            all_matches_fixtures = _extract_all_matches(all_matches_payload) if all_matches_payload is not None else None
+            if all_matches_fixtures is None:
+                had_failed_request = True
+                continue
+            fixtures.extend(all_matches_fixtures)
+
         if had_failed_request and not fixtures:
             stale = self._get_cached_fixtures(cache_key, allow_stale=True)
             return stale or []
@@ -227,6 +246,42 @@ class FootballDataSportsAPIClient(SportsAPIClient):
             logger.exception(
                 "sports_api_request_failed",
                 extra={"provider": _PROVIDER_NAME, "path": _FIXTURES_PATH, "date": request_date, **log_context},
+            )
+            return self._get_cached_provider_payload(request_date, allow_stale=True)
+
+    async def _fetch_all_matches(self, target_date: date, log_context: dict) -> dict | None:
+        request_date = f"{target_date.strftime('%Y%m%d')}:all"
+        cached_payload = self._get_cached_provider_payload(request_date)
+        if cached_payload is not None:
+            return cached_payload
+
+        try:
+            async with httpx.AsyncClient(base_url=self.base_url, headers=self.headers, timeout=20.0) as client:
+                response = await client.get(
+                    _ALL_MATCHES_PATH,
+                    params={"date": target_date.strftime("%Y%m%d")},
+                )
+            response.raise_for_status()
+            payload = response.json()
+            if isinstance(payload, dict):
+                errors = payload.get("errors")
+                if errors:
+                    logger.warning(
+                        "sports_api_all_matches_response_errors",
+                        extra={"provider": _PROVIDER_NAME, "date": target_date.isoformat(), "errors": errors},
+                    )
+                    return None
+                matches = ((payload.get("response") or {}).get("matches") if isinstance(payload.get("response"), dict) else None)
+                logger.info(
+                    "sports_api_all_matches_response_loaded",
+                    extra={"provider": _PROVIDER_NAME, "date": target_date.isoformat(), "match_count": len(matches) if isinstance(matches, list) else None},
+                )
+                self._set_cached_provider_payload(request_date, payload)
+            return payload
+        except httpx.HTTPError:
+            logger.exception(
+                "sports_api_all_matches_request_failed",
+                extra={"provider": _PROVIDER_NAME, "path": _ALL_MATCHES_PATH, "date": target_date.isoformat(), **log_context},
             )
             return self._get_cached_provider_payload(request_date, allow_stale=True)
 
@@ -335,6 +390,30 @@ def _extract_fixtures(payload: dict | list) -> list[dict]:
         return fixtures
 
     return []
+
+
+def _extract_all_matches(payload: dict | list) -> list[dict]:
+    if not isinstance(payload, dict):
+        return []
+
+    response = payload.get("response")
+    if not isinstance(response, dict):
+        return []
+
+    matches = response.get("matches")
+    if not isinstance(matches, list):
+        return []
+
+    fixtures: list[dict] = []
+    for match in matches:
+        if not isinstance(match, dict):
+            continue
+        league_id = match.get("leagueId")
+        if league_id not in _ALLOWED_LEAGUE_IDS:
+            continue
+        league = {"id": league_id, **_LEAGUE_BY_ID[league_id]}
+        fixtures.append({"league": league, "match": match})
+    return fixtures
 
 
 def _fixture_cache_path() -> Path:

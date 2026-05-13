@@ -4,7 +4,7 @@ import pytest
 
 from app.core.time import provider_dates_for_sports_date
 from app.integrations.sports import football_data
-from app.integrations.sports.football_data import FootballDataSportsAPIClient, _is_allowed_league, _is_fixture_on_date
+from app.integrations.sports.football_data import FootballDataSportsAPIClient, _extract_all_matches, _is_allowed_league, _is_fixture_on_date
 
 
 def test_football_data_maps_rapidapi_fixture_to_match_data():
@@ -56,6 +56,35 @@ def test_football_data_keeps_matches_by_configured_local_date():
 
     assert _is_fixture_on_date(payload, date(2026, 5, 10))
     assert not _is_fixture_on_date(payload, date(2026, 5, 9))
+
+
+def test_football_data_extracts_allowed_matches_from_all_matches_payload():
+    payload = {
+        "response": {
+            "matches": [
+                {
+                    "id": 5243310,
+                    "leagueId": 923880,
+                    "home": {"id": 101767, "longName": "Haras El Hodoud", "score": 0},
+                    "away": {"id": 101757, "longName": "Al Mokawloon Al Arab", "score": 0},
+                    "status": {"utcTime": "2026-05-13T14:00:00.000Z", "started": True, "finished": False, "cancelled": False},
+                },
+                {
+                    "id": 999,
+                    "leagueId": 123456,
+                    "home": {"longName": "Other"},
+                    "away": {"longName": "Team"},
+                    "status": {"utcTime": "2026-05-13T14:00:00.000Z"},
+                },
+            ]
+        }
+    }
+
+    fixtures = _extract_all_matches(payload)
+
+    assert len(fixtures) == 1
+    assert fixtures[0]["league"] == {"id": 923880, "ccode": "EGY", "name": "Premier League"}
+    assert fixtures[0]["match"]["id"] == 5243310
 
 
 def test_football_data_requests_provider_dates_around_local_day():

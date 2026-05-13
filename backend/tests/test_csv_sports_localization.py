@@ -21,3 +21,4 @@ def test_localize_sports_text_uses_country_context_for_ambiguous_leagues():
 
 def test_localize_sports_text_uses_csv_for_modern_sport():
     assert localize_sports_text("Modern Sport FC", "ar", entity_type="team") == "مودرن سبورت"
+    assert localize_sports_text("Haras El Hodoud", "ar", entity_type="team") == "حرس الحدود"
