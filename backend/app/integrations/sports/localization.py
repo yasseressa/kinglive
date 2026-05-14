@@ -65,9 +65,11 @@ _SPORTS_NAME_STOP_WORDS = {
     "cf",
     "club",
     "de",
+    "el",
     "fc",
     "fk",
     "if",
+    "of",
     "rc",
     "sc",
     "sk",
@@ -164,6 +166,22 @@ _COUNTRY_HINTS = {
     "france": ("france", "french"),
     "netherlands": ("netherlands", "dutch", "netherland"),
     "portugal": ("portugal", "portuguese"),
+}
+_LEAGUE_STAGE_WORDS = {
+    "championship",
+    "final",
+    "finals",
+    "group",
+    "offs",
+    "play",
+    "playoff",
+    "playoffs",
+    "promotion",
+    "quarter",
+    "regular",
+    "relegation",
+    "season",
+    "semi",
 }
 
 
@@ -322,6 +340,8 @@ def _csv_match_score(candidate: str, relaxed_candidate: str, entry: _CsvTranslat
         score = 100
     elif relaxed_candidate == entry.relaxed_lookup_key:
         score = 90
+    elif _league_names_match_with_context(candidate, entry.lookup_key, country_hints):
+        score = 85
     elif _names_match_relaxed(relaxed_candidate, entry.relaxed_lookup_key):
         score = 50
 
@@ -331,6 +351,25 @@ def _csv_match_score(candidate: str, relaxed_candidate: str, entry: _CsvTranslat
     if country_hints and any(hint in entry.lookup_key for hint in country_hints):
         score += 30
     return score
+
+
+def _league_names_match_with_context(candidate: str, source: str, country_hints: tuple[str, ...]) -> bool:
+    if not country_hints:
+        return False
+    candidate_base = _strip_league_stage_words(candidate)
+    source_base = _strip_league_stage_words(source)
+    if not candidate_base or not source_base:
+        return False
+    has_country_context = any(hint in source_base for hint in country_hints)
+    return has_country_context and (
+        f" {candidate_base} " in f" {source_base} "
+        or f" {source_base} " in f" {candidate_base} "
+    )
+
+
+def _strip_league_stage_words(value: str) -> str:
+    words = [word for word in _normalize_lookup_key(value).split() if word not in _LEAGUE_STAGE_WORDS]
+    return " ".join(words)
 
 
 def _names_match_relaxed(candidate: str, source: str) -> bool:

@@ -24,8 +24,10 @@
 نادي,أتلتيك بيلباو,Athletic Bilbao,Athletic Bilbao,Athletic Bilbao
 نادي,أتلتيكو مدريد,Atlético Madrid,Atlético Madrid,Atlético Madrid
 نادي,برشلونة,Barcelona,Barcelona,Barcelona
+نادي,أتلتيك بيلباو,Ath Bilbao,Ath Bilbao,Ath Bilbao
 نادي,سلتا فيغو,Celta de Vigo,Celta de Vigo,Celta de Vigo
 نادي,ديبورتيفو ألافيس,Deportivo Alavés,Alavés,Alavés
+نادي,ديبورتيفو ألافيس,Alaves,Alaves,Alaves
 نادي,إلتشي,Elche,Elche,Elche
 نادي,إسبانيول,Espanyol,Espanyol,Espanyol
 نادي,خيتافي,Getafe,Getafe,Getafe
@@ -163,6 +165,7 @@
 نادي,الأهلي,Al Ahly,Al Ahly,Al Ahly
 نادي,الاتحاد السكندري,Al Ittihad,Al Ittihad Alexandrie,Al Ittihad Alejandría
 نادي,المقاولون العرب,Al Mokawloon,Al Mokawloon,Al Mokawloon
+نادي,المقاولون العرب,Arab Contractors,Arab Contractors,Arab Contractors
 نادي,المصري,Al Masry,Al Masry,Al Masry
 نادي,سيراميكا كليوباترا,Ceramica Cleopatra,Ceramica Cleopatra,Ceramica Cleopatra
 نادي,كوكاكولا,Coca-Cola,Coca-Cola,Coca-Cola
@@ -170,11 +173,13 @@
 نادي,الجونة,El Gounah,El Gounah,El Gounah
 نادي,إنبي,ENPPI,Enppi,Enppi
 نادي,غزل المحلة,Ghazl El Mehalla,Ghazl El Mehalla,Ghazl El Mehalla
+نادي,غزل المحلة,Ghazl El Mahallah,Ghazl El Mahallah,Ghazl El Mahallah
 نادي,حرس الحدود,Haras El Hodood,Haras El Hodood,Haras El Hodood
 نادي,الإسماعيلي,Ismaily SC,Ismaily,Ismaily
 نادي,كهرباء الإسماعيلية,Kahraba Ismailia,Kahraba Ismailia,Kahraba Ismailia
 نادي,مصر,Masr,Masr,Masr
 نادي,البنك الأهلي,National Bank of Egypt,Bank National,Banco Nacional
+نادي,البنك الأهلي,National Bank Egypt,National Bank Egypt,National Bank Egypt
 نادي,فاركو,Pharco,Pharco,Pharco
 نادي,حرس الحدود,Haras El Hodoud,Haras El Hodoud,Haras El Hodoud
 نادي,مودرن سبورت,Modern Sport FC,Modern Sport,Modern Sport
@@ -182,4 +187,5 @@
 نادي,بيراميدز,Pyramids FC,Pyramids FC,Pyramids FC
 نادي,سموحة,Smouha SC,Smouha,Smouha
 نادي,طلائع الجيش,El Geish,El Geish,El Geish
+نادي,طلائع الجيش,El Gaish,El Gaish,El Gaish
 نادي,الزمالك,Zamalek,Zamalek,Zamalek

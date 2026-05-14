@@ -14,6 +14,10 @@ def test_localize_sports_text_matches_names_with_common_prefixes():
 
 def test_localize_sports_text_uses_country_context_for_ambiguous_leagues():
     assert localize_sports_text("Premier League", "ar", entity_type="league", country="Egypt") == "الدوري المصري الدرجة الأولى"
+    assert (
+        localize_sports_text("Premier League - Relegation Group", "ar", entity_type="league", country="Egypt")
+        == "الدوري المصري الدرجة الأولى"
+    )
     assert localize_sports_text("Premier League", "ar", entity_type="league", country="England") == "الدوري الإنجليزي الممتاز"
     assert localize_sports_text("LaLiga", "ar", entity_type="league", country="Spain") == "الدوري الإسباني الدرجة الأولى"
     assert localize_sports_text("Coppa Italia", "ar", entity_type="league", country="Italy") == "كأس إيطاليا"
@@ -22,3 +26,12 @@ def test_localize_sports_text_uses_country_context_for_ambiguous_leagues():
 def test_localize_sports_text_uses_csv_for_modern_sport():
     assert localize_sports_text("Modern Sport FC", "ar", entity_type="team") == "مودرن سبورت"
     assert localize_sports_text("Haras El Hodoud", "ar", entity_type="team") == "حرس الحدود"
+
+
+def test_localize_sports_text_uses_api_football_team_aliases():
+    assert localize_sports_text("Arab Contractors", "ar", entity_type="team") == "المقاولون العرب"
+    assert localize_sports_text("Ghazl El Mahallah", "ar", entity_type="team") == "غزل المحلة"
+    assert localize_sports_text("El Gaish", "ar", entity_type="team") == "طلائع الجيش"
+    assert localize_sports_text("National Bank Egypt", "ar", entity_type="team") == "البنك الأهلي"
+    assert localize_sports_text("Ath Bilbao", "ar", entity_type="team") == "أتلتيك بيلباو"
+    assert localize_sports_text("Alaves", "ar", entity_type="team") == "ديبورتيفو ألافيس"
