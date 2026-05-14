@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import type { Messages } from "@/i18n";
 import type { MatchSummary, StreamLink } from "@/lib/api/types";
+import { getDisplayMatchStatus } from "@/lib/utils";
 
 export interface StreamFormValues {
   external_match_id: string;
@@ -41,6 +42,15 @@ export function StreamForm({
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const availableMatchBuckets = useMemo(() => {
+    if (!matchBuckets) return undefined;
+
+    const now = new Date();
+    return matchBuckets.map((bucket) => ({
+      ...bucket,
+      matches: bucket.matches.filter((match) => getDisplayMatchStatus(match.status, match.start_time, now) !== "finished"),
+    }));
+  }, [matchBuckets]);
 
   return (
     <Card className="space-y-5">
@@ -97,14 +107,14 @@ export function StreamForm({
         <Button type="submit" disabled={loading}>{loading ? messages.loading : mode === "create" ? messages.save : messages.update}</Button>
       </form>
       {matchBucketsError ? <p className="text-sm text-[#931800]">{matchBucketsError}</p> : null}
-      {matchBuckets?.some((bucket) => bucket.matches.length > 0) ? (
+      {availableMatchBuckets?.some((bucket) => bucket.matches.length > 0) ? (
         <div className="space-y-4 border-t border-[#ddd] pt-5">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#931800]">{messages.availableMatches}</p>
             <p className="mt-2 text-sm text-[#626883]">{messages.pickMatchIdHelp}</p>
           </div>
           <div className="space-y-4">
-            {matchBuckets.map((bucket) =>
+            {availableMatchBuckets.map((bucket) =>
               bucket.matches.length > 0 ? (
                 <div key={bucket.label} className="space-y-3">
                   <p className="text-sm font-semibold text-[#222]">{bucket.label}</p>

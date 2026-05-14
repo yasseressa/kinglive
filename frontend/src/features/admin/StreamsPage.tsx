@@ -12,6 +12,7 @@ import type { Locale, Messages } from "@/i18n";
 import { getAdminToken } from "@/lib/auth";
 import { createStream, deleteStream, getHomePageData, getStreams, updateStream } from "@/lib/api";
 import type { HomeResponse, StreamLink } from "@/lib/api/types";
+import { getDisplayMatchStatus } from "@/lib/utils";
 
 const emptyForm = {
   external_match_id: "",
@@ -57,7 +58,14 @@ export function StreamsPage({ locale, messages, initialMatchBuckets }: { locale:
   }, [initialMatchBuckets, locale]);
 
   const availableMatches = useMemo(
-    () => (matchBuckets ? [...matchBuckets.today_matches, ...matchBuckets.tomorrow_matches, ...matchBuckets.yesterday_matches] : []),
+    () => {
+      if (!matchBuckets) return [];
+
+      const now = new Date();
+      return [...matchBuckets.today_matches, ...matchBuckets.tomorrow_matches, ...matchBuckets.yesterday_matches].filter(
+        (match) => getDisplayMatchStatus(match.status, match.start_time, now) !== "finished",
+      );
+    },
     [matchBuckets],
   );
 
@@ -118,7 +126,6 @@ export function StreamsPage({ locale, messages, initialMatchBuckets }: { locale:
       setItems((current) => current.filter((item) => item.external_match_id !== target));
       setToastMessage(text.deleteSuccess ?? "Item deleted successfully.");
       if (editingId === target) startCreate();
-      loadStreams().catch(() => undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : messages.loadFailed);
     } finally {
