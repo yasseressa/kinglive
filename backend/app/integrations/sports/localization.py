@@ -114,15 +114,6 @@ def _lookup_csv_translation(value: str, locale: str, *, entity_type: str | None 
 
 
 @lru_cache
-def _load_csv_translations() -> dict[str, dict[str, str]]:
-    translations: dict[str, dict[str, str]] = {"ar": {}, "en": {}, "fr": {}, "es": {}}
-    for entry in _load_csv_translation_entries():
-        for locale, translated in entry.translations.items():
-            translations[locale][entry.lookup_key] = translated
-    return translations
-
-
-@lru_cache
 def _load_csv_translation_entries() -> tuple[_CsvTranslationEntry, ...]:
     path = _translation_csv_path()
     if not path.exists():

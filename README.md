@@ -97,9 +97,8 @@ This repo includes a root `render.yaml` for a free-friendly Render setup with:
    - `APP_DEBUG=false`
    - `DATABASE_URL=<Render internal database URL>`
    - `SECRET_KEY=<long random secret>`
-   - `SPORTS_PROVIDER=api_sports`
-   - `FOOTBALL_DATA_BASE_URL=https://v3.football.api-sports.io`
-   - `FOOTBALL_DATA_API_KEY=<your API-SPORTS key>`
+   - `FOOTBALL_DATA_BASE_URL=https://apiv3.apifootball.com`
+   - `FOOTBALL_DATA_API_KEY=<your APIFootball key>`
    - `GNEWS_API_KEY=<your key>`
    - `REDIS_URL=<your Redis connection URL>` (optional; the backend falls back to in-memory cache when unset)
    - `ADMIN_BOOTSTRAP_USERNAME=<your first admin username>`
