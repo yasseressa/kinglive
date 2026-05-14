@@ -80,6 +80,8 @@
 نادي,باريس سان جيرمان,Paris Saint-Germain,Paris Saint-Germain,Paris Saint-Germain
 نادي,رين,Rennes,Rennes,Rennes
 نادي,ستراسبورغ,Strasbourg,Strasbourg,Estrasburgo
+نادي,سانت اتيان,ST Etienne,AS Saint-Étienne,
+نادي,روديز,Rodez,Rodez,Rodez
 نادي,تولوز,Toulouse,Toulouse,Toulouse
 دوري,الدوري الإيطالي الدرجة الأولى,Serie A,Serie A italienne,Serie A italiana
 دوري,كأس إيطاليا,Coppa Italia,Coupe d'Italie,Copa Italia
@@ -141,7 +143,7 @@
 نادي,سبورتينغ لشبونة,Sporting Clube de Portugal,Sporting CP,Sporting de Lisboa
 نادي,تونديلا,C.D. Tondela,Tondela,Tondela
 نادي,فيتوريا غيماريش,Vitória S.C.,Vitória Guimarães,Vitória Guimarães
-دوري,دوري روشن السعودي,Saudi Pro League,Saudi Pro League,Liga Profesional Saudí
+دوري,دوري روشن السعودي,Saudi League,Saudi Pro League,Liga Profesional Saudí
 نادي,الحزم,Al Hazem,Al Hazem,Al Hazem
 نادي,أهلي جدة,Al Ahli,Al Ahli,Al Ahli
 نادي,العروبة,Al Akhdoud,Al Akhdoud,Al Akhdoud
@@ -158,7 +160,7 @@
 نادي,الرائد,Al Raed,Al Raed,Al Raed
 نادي,الرياض,Al Riyadh,Al Riyadh,Al Riyadh
 نادي,الشباب,Al Shabab,Al Shabab,Al Shabab
-نادي,التعاون,Al-Taawoun,Al-Taawoun,Al-Taawoun
+نادي,التعاون,Al Taawon,Al Taawon,Al Taawon
 نادي,الوحدة,Al Wehda,Al Wehda,Al Wehda
 نادي,ضمك,Damac FC,Damac,Damac
 دوري,الدوري المصري الدرجة الأولى,Egyptian Premier League,Egyptian Premier League,Liga Premier Egipcia
@@ -189,3 +191,4 @@
 نادي,طلائع الجيش,El Geish,El Geish,El Geish
 نادي,طلائع الجيش,El Gaish,El Gaish,El Gaish
 نادي,الزمالك,Zamalek,Zamalek,Zamalek
+نادي,زد,ZED,ZED,ZED
