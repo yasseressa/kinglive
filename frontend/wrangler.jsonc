@@ -9,7 +9,10 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "INTERNAL_API_BASE_URL": "https://goalstream-api.onrender.com"
+    "INTERNAL_API_BASE_URL": "https://goalstream-api.onrender.com",
+    "POPUP_AD_ALT": "Advertisement",
+    "POPUP_AD_IMAGE_URL": "https://melbet-app.in/wp-content/uploads/2026/03/melbet-app-in-main-bonus.webp",
+    "POPUP_AD_LINK_URL": "https://refpa3665.com/L?tag=d_4974371m_2170c_DAN222"
   },
   "services": [
     {
