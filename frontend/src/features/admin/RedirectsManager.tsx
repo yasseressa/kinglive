@@ -18,6 +18,7 @@ export function RedirectsManager({ locale: _locale, messages }: { locale: Locale
   const [settings, setSettings] = useState<RedirectSettings | null>(null);
   const [targetUrl, setTargetUrl] = useState("");
   const [cooldownSeconds, setCooldownSeconds] = useState(String(defaultCooldownSeconds));
+  const [openInNewTab, setOpenInNewTab] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +36,7 @@ export function RedirectsManager({ locale: _locale, messages }: { locale: Locale
         setSettings(response);
         setTargetUrl(response.fallback_url ?? "");
         setCooldownSeconds(String(response.default_cooldown_seconds ?? defaultCooldownSeconds));
+        setOpenInNewTab(response.open_in_new_tab);
       })
       .catch((err) => setError(err instanceof Error ? err.message : messages.loadFailed))
       .finally(() => setLoading(false));
@@ -59,6 +61,7 @@ export function RedirectsManager({ locale: _locale, messages }: { locale: Locale
           enabled: Boolean(normalizedUrl),
           fallback_url: normalizedUrl || null,
           default_cooldown_seconds: nextCooldownSeconds,
+          open_in_new_tab: openInNewTab,
           active_campaign_id: null,
         },
         token,
@@ -67,6 +70,7 @@ export function RedirectsManager({ locale: _locale, messages }: { locale: Locale
       setSettings(updated);
       setTargetUrl(updated.fallback_url ?? "");
       setCooldownSeconds(String(updated.default_cooldown_seconds ?? defaultCooldownSeconds));
+      setOpenInNewTab(updated.open_in_new_tab);
       setToastMessage(messages.saveSuccess);
     } catch (err) {
       setError(err instanceof Error ? err.message : messages.loadFailed);
@@ -112,6 +116,15 @@ export function RedirectsManager({ locale: _locale, messages }: { locale: Locale
               max={maxCooldownSeconds}
               data-disable-global-redirect="true"
             />
+            <label className="flex items-center gap-3 rounded-lg border border-[#ddd] bg-[#f6f7fa] px-4 py-3 text-sm font-semibold text-[#222]">
+              <input
+                type="checkbox"
+                checked={openInNewTab}
+                onChange={(event) => setOpenInNewTab(event.target.checked)}
+                data-disable-global-redirect="true"
+              />
+              {messages.openInNewTab}
+            </label>
             <Button onClick={handleSave} disabled={!settings || saving} data-disable-global-redirect="true">
               {saving ? messages.loading : messages.save}
             </Button>
