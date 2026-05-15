@@ -68,13 +68,24 @@ class Settings(BaseSettings):
     def _normalize_asyncpg_ssl_query(self, url: str) -> str:
         parsed = urlsplit(url)
         query = dict(parse_qsl(parsed.query, keep_blank_values=True))
-        sslmode = query.pop("sslmode", "").lower()
+        query.pop("sslmode", None)
+        query.pop("ssl", None)
         query.pop("channel_binding", None)
 
-        if sslmode and sslmode not in {"disable", "allow", "prefer"}:
-            query.setdefault("ssl", "true")
-
         return urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
+
+    def _requires_asyncpg_ssl(self, url: str | None) -> bool:
+        if not url:
+            return False
+
+        query = dict(parse_qsl(urlsplit(url).query, keep_blank_values=True))
+        sslmode = query.get("sslmode", "").lower()
+        ssl = query.get("ssl", "").lower()
+        return ssl in {"1", "true", "yes", "require", "required"} or sslmode in {
+            "require",
+            "verify-ca",
+            "verify-full",
+        }
 
     @computed_field
     @property
@@ -100,6 +111,13 @@ class Settings(BaseSettings):
             f"postgresql+psycopg://{self.database_user}:{self.database_password}"
             f"@{self.database_host}:{self.database_port}/{self.database_name}"
         )
+
+    @computed_field
+    @property
+    def database_connect_args(self) -> dict[str, bool]:
+        if self._requires_asyncpg_ssl(self.database_url_override):
+            return {"ssl": True}
+        return {}
 
     @computed_field
     @property
