@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "cf:build": "npm --prefix frontend run cf:build",
+    "cf:deploy": "npm run cf:build && npx wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.92.0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "frontend/node_modules/wrangler/config-schema.json",
+  "main": "frontend/.open-next/worker.js",
+  "name": "goalstream",
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": "frontend/.open-next/assets",
+    "binding": "ASSETS"
+  },
+  "vars": {
+    "INTERNAL_API_BASE_URL": "https://goalstream-api.onrender.com"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "goalstream"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  }
+}
